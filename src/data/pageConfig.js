@@ -6,6 +6,10 @@ import FAQ from '../pages/FAQ';
 import Contact from '../pages/Contact';
 import Downloads from '../pages/Downloads';
 import News from '../pages/News';
+import Vulnerability from '../pages/Vulnerability';
+import Committee from '../pages/Committee';
+import Training from '../pages/Training';
+import Reports from '../pages/Publications';
 
 export const PAGE_MAP = {
   'home': Home,
@@ -16,5 +20,8 @@ export const PAGE_MAP = {
   'contact': Contact,
   'downloads': Downloads,
   'news': News,
-  'training': FAQ // Placeholder for training
+  'vulnerability': Vulnerability,
+  'committee': Committee,
+  'training': Training,
+  'reports': Reports
 };

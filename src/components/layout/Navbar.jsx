@@ -71,11 +71,48 @@ const Navbar = ({ onReportClick, setPage }) => {
                         key={sub.name}
                         onClick={() => {
 
-                          if (sub.name === "About APCERT") setPage('about');
-                          if (sub.name === "Functions & Mandate") setPage('mandate');
-                          if (sub.name === "Security Tips") setPage('tips');
-                          if (sub.name === "Downloads") setPage('downloads');
-                          if (sub.name === "News & Updates") setPage('news');
+                          // Report Incident Modal
+                          if (sub.name === "Report an Incident") {
+                            onReportClick();
+                          }
+
+                          // Existing Mappings
+                          else if (sub.name === "About APCERT") {
+                            setPage('about');
+                          }
+
+                          else if (sub.name === "Functions & Mandate") {
+                            setPage('mandate');
+                          }
+
+                          else if (sub.name === "Security Tips") {
+                            setPage('tips');
+                          }
+
+                          else if (sub.name === "Downloads") {
+                            setPage('downloads');
+                          }
+
+                          else if (sub.name === "News & Updates") {
+                            setPage('news');
+                          }
+
+                          // Additional Mappings
+                          else if (sub.name === "Vulnerability Disclosure") {
+                            setPage('vulnerability');
+                          }
+
+                          else if (sub.name === "Who's Who") {
+                            setPage('committee');
+                          }
+
+                          else if (sub.name === "Training") {
+                            setPage('training');
+                          }
+
+                          else if (sub.name === "Publications") {
+                            setPage('reports');
+                          }
 
                           setActiveDropdown(null);
                         }}
@@ -88,14 +125,6 @@ const Navbar = ({ onReportClick, setPage }) => {
                 )}
               </div>
             ))}
-
-            {/* Contact Button */}
-            <button
-              onClick={() => setPage('contact')}
-              className="text-sm font-bold uppercase tracking-wider hover:text-ap-gold transition-colors"
-            >
-              Contact
-            </button>
 
             {/* Report Button */}
             <button
@@ -135,11 +164,48 @@ const Navbar = ({ onReportClick, setPage }) => {
                       key={sub.name}
                       onClick={() => {
 
-                        if (sub.name === "About APCERT") setPage('about');
-                        if (sub.name === "Functions & Mandate") setPage('mandate');
-                        if (sub.name === "Security Tips") setPage('tips');
-                        if (sub.name === "Downloads") setPage('downloads');
-                        if (sub.name === "News & Updates") setPage('news');
+                        // Report Incident Modal
+                        if (sub.name === "Report an Incident") {
+                          onReportClick();
+                        }
+
+                        // Existing Mappings
+                        else if (sub.name === "About APCERT") {
+                          setPage('about');
+                        }
+
+                        else if (sub.name === "Functions & Mandate") {
+                          setPage('mandate');
+                        }
+
+                        else if (sub.name === "Security Tips") {
+                          setPage('tips');
+                        }
+
+                        else if (sub.name === "Downloads") {
+                          setPage('downloads');
+                        }
+
+                        else if (sub.name === "News & Updates") {
+                          setPage('news');
+                        }
+
+                        // Additional Mappings
+                        else if (sub.name === "Vulnerability Disclosure") {
+                          setPage('vulnerability');
+                        }
+
+                        else if (sub.name === "Who's Who") {
+                          setPage('committee');
+                        }
+
+                        else if (sub.name === "Training") {
+                          setPage('training');
+                        }
+
+                        else if (sub.name === "Publications") {
+                          setPage('reports');
+                        }
 
                         setIsMobileMenuOpen(false);
                       }}
@@ -162,17 +228,6 @@ const Navbar = ({ onReportClick, setPage }) => {
               )}
             </div>
           ))}
-
-          {/* Mobile Contact Button */}
-          <button
-            onClick={() => {
-              setPage('contact');
-              setIsMobileMenuOpen(false);
-            }}
-            className="w-full border border-ap-gold text-ap-gold py-3 rounded-lg font-black uppercase text-xs tracking-widest"
-          >
-            Contact
-          </button>
 
           {/* Mobile Report Button */}
           <button

@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import ReportModal from './components/ui/ReportModal';
+import LeadershipHeader from './components/layout/LeadershipHeader';
+import ImageCarousel from './components/layout/ImageCarousel';
 
 import { PAGE_MAP } from './data/pageConfig';
 
@@ -14,13 +16,21 @@ function App() {
   const ActivePage = PAGE_MAP[currentPage] || PAGE_MAP['home'];
 
   return (
-    <div className="min-h-screen bg-ap-navy font-sans text-white flex flex-col">
-      
+    <div className="min-h-screen bg-[#0A162F] font-sans text-white flex flex-col">
+
       {/* Navbar */}
       <Navbar
         setPage={setCurrentPage}
         onReportClick={() => setIsModalOpen(true)}
       />
+
+      {/* Leadership Section */}
+      <LeadershipHeader />
+
+      {/* Carousel Section */}
+      <div className="space-y-4">
+        {currentPage === 'home' && <ImageCarousel />}
+      </div>
 
       {/* Main Content */}
       <main className="flex-grow min-h-[70vh]">
