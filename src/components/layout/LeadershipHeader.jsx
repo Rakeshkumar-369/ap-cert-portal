@@ -4,25 +4,25 @@ const leaders = [
   {
     name: "Sri Nara Chandrababu Naidu",
     post: "Hon'ble Chief Minister of Andhra Pradesh",
-    image: "/ap-cert-portal/images/cm-naidu.jpg", // Replace with actual URL
+    image: `${import.meta.env.BASE_URL}images/cm-naidu.jpg`,
     border: "border-ap-gold"
   },
   {
     name: "Sri. Nara Lokesh",
     post: "Hon'ble Minister of ITE&C, RTGS & HRD GoAP",
-    image: "/ap-cert-portal/images/minister_lokesh.jpeg", // Replace with actual URL
+    image: `${import.meta.env.BASE_URL}images/minister_lokesh.jpeg`,
     border: "border-ap-lavender"
   },
   {
     name: "Katamaneni. Bhaskar, IAS",
     post: "Secretary to Government, ITE&C Department",
-    image: "/ap-cert-portal/images/sec_IT.png", // Replace with actual URL
+    image: `${import.meta.env.BASE_URL}images/sec_IT.png`,
     border: "border-ap-purple"
   },
   {
     name: "M. Surya Teja I.A.S",
     post: "Managing Director, APTS",
-    image: "/ap-cert-portal/images/md_apts.jpg", // Replace with actual URL
+    image: `${import.meta.env.BASE_URL}images/md_apts.jpg`,
     border: "border-ap-purple"
   }
 ];

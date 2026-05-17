@@ -3,12 +3,42 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const carouselData = [
-  { id: 1, src: "/ap-cert-portal/images/cyber-1.png", title: "APCSOC OPERATIONS", desc: "24/7 MONITORING OF STATE INFRASTRUCTURE" },
-  { id: 2, src: "/ap-cert-portal/images/cyber-2.png", title: "CYBER FORENSICS", desc: "BUILDING EXPERT DIGITAL INVESTIGATION CAPABILITY" },
-  { id: 3, src: "/ap-cert-portal/images/cyber-3.jpg", title: "CAPACITY BUILDING", desc: "TRAINING THE NEXT GENERATION OF CYBER FORCES" },
-  { id: 4, src: "/ap-cert-portal/images/cyber-4.jpg", title: "INCIDENT RESPONSE", desc: "RAPID MITIGATION OF CYBERSECURITY THREATS" },
-  { id: 5, src: "/ap-cert-portal/images/cyber-5.jpg", title: "THREAT INTELLIGENCE", desc: "ADVANCED MACHINE LEARNING FOR THREAT DETECTION" },
-  { id: 6, src: "/ap-cert-portal/images/cyber-6.jpg", title: "CITIZEN SAFETY", desc: "PROACTIVE ADVISORIES FOR ANDHRA PRADESH" }
+  {
+    id: 1,
+    src: `${import.meta.env.BASE_URL}images/cyber-1.png`,
+    title: "APCSOC OPERATIONS",
+    desc: "24/7 MONITORING OF STATE INFRASTRUCTURE"
+  },
+  {
+    id: 2,
+    src: `${import.meta.env.BASE_URL}images/cyber-2.png`,
+    title: "CYBER FORENSICS",
+    desc: "BUILDING EXPERT DIGITAL INVESTIGATION CAPABILITY"
+  },
+  {
+    id: 3,
+    src: `${import.meta.env.BASE_URL}images/cyber-3.jpg`,
+    title: "CAPACITY BUILDING",
+    desc: "TRAINING THE NEXT GENERATION OF CYBER FORCES"
+  },
+  {
+    id: 4,
+    src: `${import.meta.env.BASE_URL}images/cyber-4.jpg`,
+    title: "INCIDENT RESPONSE",
+    desc: "RAPID MITIGATION OF CYBERSECURITY THREATS"
+  },
+  {
+    id: 5,
+    src: `${import.meta.env.BASE_URL}images/cyber-5.jpg`,
+    title: "THREAT INTELLIGENCE",
+    desc: "ADVANCED MACHINE LEARNING FOR THREAT DETECTION"
+  },
+  {
+    id: 6,
+    src: `${import.meta.env.BASE_URL}images/cyber-6.jpg`,
+    title: "CITIZEN SAFETY",
+    desc: "PROACTIVE ADVISORIES FOR ANDHRA PRADESH"
+  }
 ];
 
 const ImageCarousel = () => {
