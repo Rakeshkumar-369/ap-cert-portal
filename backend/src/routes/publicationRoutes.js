@@ -34,13 +34,6 @@ router.put(
   publicationController.updatePublication
 );
 
-router.patch(
-  '/:id/publish',
-  authMiddleware,
-  idValidation,
-  publicationController.publishPublication
-);
-
 router.delete(
   '/:id',
   authMiddleware,

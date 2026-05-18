@@ -1,10 +1,10 @@
-// src/repositories/publicationRepository.js
+// src/repositories/downloadRepository.js
 const pool = require('../config/db');
 
-class PublicationRepository {
+class DownloadRepository {
   async create({ title, description, file_path, original_filename, file_size, mime_type, uploaded_by }) {
     const [result] = await pool.query(
-      `INSERT INTO publications (title, description, file_path, original_filename, file_size, mime_type, uploaded_by)
+      `INSERT INTO downloads (title, description, file_path, original_filename, file_size, mime_type, uploaded_by)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [title, description, file_path, original_filename, file_size, mime_type, uploaded_by]
     );
@@ -13,12 +13,12 @@ class PublicationRepository {
 
   async findAllActive(limit, offset) {
     const [rows] = await pool.query(
-      `SELECT p.id, p.title, p.description, p.file_path, p.original_filename, p.file_size, p.mime_type,
-              p.uploaded_by, u.name as uploader_name, p.created_at
-       FROM publications p
-       JOIN users u ON p.uploaded_by = u.id
-       WHERE p.status = 'ACTIVE'
-       ORDER BY p.created_at DESC
+      `SELECT d.id, d.title, d.description, d.file_path, d.original_filename, d.file_size, d.mime_type,
+              d.uploaded_by, u.name as uploader_name, d.created_at
+       FROM downloads d
+       JOIN users u ON d.uploaded_by = u.id
+       WHERE d.status = 'ACTIVE'
+       ORDER BY d.created_at DESC
        LIMIT ? OFFSET ?`,
       [limit, offset]
     );
@@ -27,17 +27,17 @@ class PublicationRepository {
 
   async countAllActive() {
     const [rows] = await pool.query(
-      "SELECT COUNT(*) as total FROM publications WHERE status = 'ACTIVE'"
+      "SELECT COUNT(*) as total FROM downloads WHERE status = 'ACTIVE'"
     );
     return rows[0].total;
   }
 
   async findById(id) {
     const [rows] = await pool.query(
-      `SELECT p.*, u.name as uploader_name
-       FROM publications p
-       JOIN users u ON p.uploaded_by = u.id
-       WHERE p.id = ? AND p.status = 'ACTIVE'`,
+      `SELECT d.*, u.name as uploader_name
+       FROM downloads d
+       JOIN users u ON d.uploaded_by = u.id
+       WHERE d.id = ? AND d.status = 'ACTIVE'`,
       [id]
     );
     return rows[0];
@@ -45,7 +45,7 @@ class PublicationRepository {
 
   async update(id, { title, description }) {
     const [result] = await pool.query(
-      `UPDATE publications SET title = ?, description = ?, updated_at = NOW() WHERE id = ?`,
+      `UPDATE downloads SET title = ?, description = ?, updated_at = NOW() WHERE id = ?`,
       [title, description, id]
     );
     return result.affectedRows > 0;
@@ -53,11 +53,11 @@ class PublicationRepository {
 
   async softDelete(id) {
     const [result] = await pool.query(
-      "UPDATE publications SET status = 'DELETED' WHERE id = ?",
+      "UPDATE downloads SET status = 'DELETED' WHERE id = ?",
       [id]
     );
     return result.affectedRows > 0;
   }
 }
 
-module.exports = new PublicationRepository();
+module.exports = new DownloadRepository();

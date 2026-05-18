@@ -9,7 +9,7 @@ const logger = require('../utils/logger');
 const uploadImage = async (req, res, next) => {
   logger.debug(`➜ [galleryController] Uploading image`);
   try {
-    const { title, alt_text } = req.body;
+    const { title, caption } = req.body;
     const file = req.file;
 
     if (!file) {
@@ -20,7 +20,7 @@ const uploadImage = async (req, res, next) => {
 
     const result = await galleryService.uploadImage({
       title,
-      alt_text,
+      caption,
       file,
       uploadedBy: req.user.id,
       ipAddress

@@ -2,10 +2,11 @@
 const path = require('path');
 const fs = require('fs');
 const reportService = require('../services/reportService');
-const reportRepo = require('../repositories/reportRepository');
 const ApiResponse = require('../utils/ApiResponse');
-const ApiError = require('../utils/ApiError');
 const logger = require('../utils/logger');
+const { parsePagination, buildPaginationMeta } = require('../utils/pagination');
+
+// --- PUBLIC: Unauthenticated endpoints ---
 
 const getCategories = async (req, res, next) => {
   logger.debug('➜ [reportController] Fetching incident categories');
@@ -41,41 +42,98 @@ const submitIncident = async (req, res, next) => {
   }
 };
 
-const getIncidentStatus = async (req, res, next) => {
-  logger.debug(`➜ [reportController] Fetching incident status: ${req.params.trackingId}`);
+// POST /api/reports/status — body: { tracking_id } (no URL exposure)
+const checkStatus = async (req, res, next) => {
+  const { tracking_id } = req.body;
+  logger.debug(`➜ [reportController] Checking incident status via POST body`);
   try {
-    const { trackingId } = req.params;
-    const result = await reportService.getIncidentStatus(trackingId);
+    const result = await reportService.checkStatus(tracking_id);
     res.json(ApiResponse.success('Incident status fetched successfully', [result]));
   } catch (error) {
     next(error);
   }
 };
 
-const downloadAttachment = async (req, res, next) => {
-  logger.debug(`➜ [reportController] Downloading attachment: ${req.params.attachmentId}`);
+// POST /api/reports/attachments/download — body: { tracking_id, attachment_id }
+const downloadAttachmentPost = async (req, res, next) => {
+  const { tracking_id, attachment_id } = req.body;
+  logger.debug(`➜ [reportController] Downloading attachment via POST body`);
   try {
-    const { trackingId, attachmentId } = req.params;
-
-    // Verify the incident exists
-    const incident = await reportService.getIncidentStatus(trackingId);
-
-    // Look up the attachment
-    const attachment = await reportRepo.getAttachmentById(parseInt(attachmentId));
-    if (!attachment || attachment.incident_id !== incident.incident_id) {
-      throw new ApiError(404, 'Attachment not found');
-    }
-
-    const filePath = path.join(__dirname, '../..', attachment.file_path);
+    const { filePath, originalFilename } = await reportService.getAttachmentForDownload(tracking_id, attachment_id);
 
     if (!fs.existsSync(filePath)) {
       return res.status(404).json(ApiResponse.error('File not found on server'));
     }
 
-    res.download(filePath, attachment.original_filename);
+    res.download(filePath, originalFilename);
   } catch (error) {
     next(error);
   }
 };
 
-module.exports = { getCategories, submitIncident, getIncidentStatus, downloadAttachment };
+// --- ADMIN: Authenticated endpoints ---
+
+// GET /api/reports/admin?status=&incident_status=&search=&limit=&offset=
+const listReports = async (req, res, next) => {
+  logger.debug('➜ [reportController] Admin listing all reports');
+  try {
+    const { limit, offset } = parsePagination(req.query.limit, req.query.offset);
+    const filters = {};
+    if (req.query.status) filters.status = req.query.status;
+    if (req.query.incident_status) filters.incident_status = req.query.incident_status;
+    if (req.query.search) filters.search = req.query.search;
+
+    const { reports, total } = await reportService.listAll(filters, limit, offset);
+
+    const meta = buildPaginationMeta(total, limit, offset, reports.length);
+    res.json(ApiResponse.success('Reports fetched successfully', reports, meta));
+  } catch (error) {
+    next(error);
+  }
+};
+
+// PATCH /api/reports/admin/:id/incident-status — body: { incident_status }
+const updateIncidentStatus = async (req, res, next) => {
+  const id = parseInt(req.params.id);
+  const { incident_status } = req.body;
+  logger.debug(`➜ [reportController] Admin updating incident_status to ${incident_status} for report #${id}`);
+  try {
+    const result = await reportService.updateIncidentStatus(
+      id,
+      incident_status,
+      req.user.id,
+      req.ip || req.connection.remoteAddress
+    );
+    res.json(ApiResponse.success('Incident status updated successfully', [result]));
+  } catch (error) {
+    next(error);
+  }
+};
+
+// PATCH /api/reports/admin/:id/status — body: { status }
+const updateReportStatus = async (req, res, next) => {
+  const id = parseInt(req.params.id);
+  const { status } = req.body;
+  logger.debug(`➜ [reportController] Admin updating status to ${status} for report #${id}`);
+  try {
+    const result = await reportService.updateReportStatus(
+      id,
+      status,
+      req.user.id,
+      req.ip || req.connection.remoteAddress
+    );
+    res.json(ApiResponse.success('Report status updated successfully', [result]));
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  getCategories,
+  submitIncident,
+  checkStatus,
+  downloadAttachmentPost,
+  listReports,
+  updateIncidentStatus,
+  updateReportStatus
+};

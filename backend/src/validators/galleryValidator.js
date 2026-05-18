@@ -18,9 +18,9 @@ const uploadImageValidation = [
     .trim()
     .escape(),
 
-  body('alt_text')
-    .optional()
-    .isLength({ max: 500 }).withMessage('Alt text must be at most 500 characters')
+  body('caption')
+    .notEmpty().withMessage('Caption is required')
+    .isLength({ max: 500 }).withMessage('Caption must be at most 500 characters')
     .trim()
     .escape(),
 

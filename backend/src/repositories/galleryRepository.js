@@ -2,18 +2,18 @@
 const pool = require('../config/db');
 
 class GalleryRepository {
-  async create({ title, alt_text, file_path, original_filename, file_size, mime_type, uploaded_by }) {
+  async create({ title, caption, file_path, original_filename, file_size, mime_type, uploaded_by }) {
     const [result] = await pool.query(
-      `INSERT INTO gallery (title, alt_text, file_path, original_filename, file_size, mime_type, uploaded_by)
+      `INSERT INTO gallery (title, caption, file_path, original_filename, file_size, mime_type, uploaded_by)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [title, alt_text, file_path, original_filename, file_size, mime_type, uploaded_by]
+      [title, caption, file_path, original_filename, file_size, mime_type, uploaded_by]
     );
     return { id: result.insertId };
   }
 
   async findAllActive(limit, offset) {
     const [rows] = await pool.query(
-      `SELECT g.id, g.title, g.alt_text, g.file_path, g.original_filename, g.file_size, g.mime_type,
+      `SELECT g.id, g.title, g.caption, g.file_path, g.original_filename, g.file_size, g.mime_type,
               g.uploaded_by, u.name as uploader_name, g.created_at
        FROM gallery g
        JOIN users u ON g.uploaded_by = u.id

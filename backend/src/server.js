@@ -14,6 +14,8 @@ const authRoutes = require('./routes/authRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const galleryRoutes = require('./routes/galleryRoutes');
 const publicationRoutes = require('./routes/publicationRoutes');
+const downloadRoutes = require('./routes/downloadRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 
 // Error Handler
 const errorHandler = require('./middleware/errorMiddleware');
@@ -59,9 +61,11 @@ app.use('/api/auth', authRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/publications', publicationRoutes);
+app.use('/api/downloads', downloadRoutes);
+app.use('/api/profiles', profileRoutes);
 
 // Serve uploaded files (protected by path — only specific dirs exposed)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+//app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // --- PRODUCTION SERVING LOGIC ---
 if (config.env === 'production') {

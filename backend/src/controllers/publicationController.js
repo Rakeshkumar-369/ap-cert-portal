@@ -76,18 +76,6 @@ const updatePublication = async (req, res, next) => {
   }
 };
 
-const publishPublication = async (req, res, next) => {
-  logger.debug(`➜ [publicationController] Publishing publication: ${req.params.id}`);
-  try {
-    const { id } = req.params;
-    const ipAddress = req.ip || req.connection.remoteAddress;
-    const result = await publicationService.publishPublication(parseInt(id), req.user.id, ipAddress);
-    res.json(ApiResponse.success(result.message, []));
-  } catch (error) {
-    next(error);
-  }
-};
-
 const deletePublication = async (req, res, next) => {
   logger.debug(`➜ [publicationController] Deleting publication: ${req.params.id}`);
   try {
@@ -123,6 +111,5 @@ module.exports = {
   getPublication,
   downloadPublication,
   updatePublication,
-  publishPublication,
   deletePublication
 };

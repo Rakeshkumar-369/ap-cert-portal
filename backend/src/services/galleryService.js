@@ -9,7 +9,7 @@ const logger = require('../utils/logger');
 const UPLOAD_DIR = path.join(__dirname, '../../uploads/gallery');
 
 class GalleryService {
-  async uploadImage({ title, alt_text, file, uploadedBy, ipAddress }) {
+  async uploadImage({ title, caption, file, uploadedBy, ipAddress }) {
     logger.debug(`  ⚙️ [galleryService] Uploading image by user: ${uploadedBy}`);
 
     const sanitizedName = `${Date.now()}_${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
@@ -19,7 +19,7 @@ class GalleryService {
 
     const galleryImage = await galleryRepo.create({
       title,
-      alt_text: alt_text || null,
+      caption: caption || null,
       file_path: path.relative(path.join(__dirname, '../..'), targetPath).replace(/\\/g, '/'),
       original_filename: validation.originalName,
       file_size: validation.size,
@@ -43,6 +43,7 @@ class GalleryService {
     return {
       id: galleryImage.id,
       title,
+      caption,
       filename: validation.originalName,
       file_size: validation.size,
       download_url: `/api/gallery/${galleryImage.id}/download`

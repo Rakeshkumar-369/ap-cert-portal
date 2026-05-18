@@ -50,8 +50,8 @@ class PublicationService {
   }
 
   async listPublications(limit, offset) {
-    const publications = await publicationRepo.findAllPublished(limit, offset);
-    const total = await publicationRepo.countAllPublished();
+    const publications = await publicationRepo.findAllActive(limit, offset);
+    const total = await publicationRepo.countAllActive();
     return {
       publications: publications.map(pub => ({
         ...pub,
@@ -94,30 +94,6 @@ class PublicationService {
 
     logger.debug(`  ✨ [publicationService] Publication updated. ID: ${id}`);
     return { message: 'Publication updated successfully' };
-  }
-
-  async publishPublication(id, userId, ipAddress) {
-    const publication = await publicationRepo.findById(id);
-    if (!publication) {
-      throw new ApiError(404, 'Publication not found');
-    }
-
-    await publicationRepo.publish(id);
-
-    // Audit log
-    await auditService.log({
-      user_id: userId,
-      module: 'PUBLICATIONS',
-      action: 'PUBLISH',
-      table_name: 'publications',
-      affected_record_id: id,
-      description: `Published publication: ${publication.title}`,
-      ip_address: ipAddress,
-      executed_query: "UPDATE publications SET is_published = TRUE, published_at = NOW() WHERE id = ?"
-    });
-
-    logger.debug(`  ✨ [publicationService] Publication published. ID: ${id}`);
-    return { message: 'Publication published successfully' };
   }
 
   async deletePublication(id, userId, ipAddress) {

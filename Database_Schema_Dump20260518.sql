@@ -27,13 +27,13 @@ DROP TABLE IF EXISTS `audit_logs`;
 CREATE TABLE `audit_logs` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int DEFAULT NULL,
-  `module` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `action` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `table_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `module` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `action` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `table_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `affected_record_id` int DEFAULT NULL,
-  `executed_query` text COLLATE utf8mb4_unicode_ci,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `executed_query` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_audit_logs_user_id` (`user_id`),
@@ -53,13 +53,39 @@ DROP TABLE IF EXISTS `blocked_users`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `blocked_users` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `attempts` int NOT NULL DEFAULT '1',
   `blocked_until` datetime DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_blocked_users_email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `downloads`
+--
+
+DROP TABLE IF EXISTS `downloads`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `downloads` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `file_path` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `original_filename` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `file_size` int NOT NULL,
+  `mime_type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `uploaded_by` int NOT NULL,
+  `status` enum('ACTIVE','INACTIVE','DELETED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_downloads_uploaded_by` (`uploaded_by`),
+  KEY `idx_downloads_status` (`status`),
+  CONSTRAINT `fk_downloads_uploaded_by` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -72,14 +98,14 @@ DROP TABLE IF EXISTS `gallery`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `gallery` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `alt_text` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `file_path` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `original_filename` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `caption` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `file_path` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `original_filename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `file_size` int NOT NULL,
-  `mime_type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mime_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `uploaded_by` int NOT NULL,
-  `status` enum('ACTIVE','INACTIVE','DELETED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
+  `status` enum('ACTIVE','INACTIVE','DELETED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -98,14 +124,40 @@ DROP TABLE IF EXISTS `incident_categories`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `incident_categories` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `status` enum('ACTIVE','INACTIVE','DELETED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `status` enum('ACTIVE','INACTIVE','DELETED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `profiles`
+--
+
+DROP TABLE IF EXISTS `profiles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `profiles` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `designation` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `image_path` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `original_filename` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `file_size` int DEFAULT NULL,
+  `mime_type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `uploaded_by` int DEFAULT NULL,
+  `status` enum('ACTIVE','INACTIVE','DELETED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_profiles_status` (`status`),
+  KEY `fk_profiles_uploaded_by` (`uploaded_by`),
+  CONSTRAINT `fk_profiles_uploaded_by` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -117,21 +169,18 @@ DROP TABLE IF EXISTS `publications`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `publications` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `title` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `file_path` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `original_filename` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `file_path` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `original_filename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `file_size` int NOT NULL,
-  `mime_type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mime_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `uploaded_by` int NOT NULL,
-  `is_published` tinyint(1) NOT NULL DEFAULT '0',
-  `published_at` datetime DEFAULT NULL,
-  `status` enum('ACTIVE','INACTIVE','DELETED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
+  `status` enum('ACTIVE','INACTIVE','DELETED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_publications_uploaded_by` (`uploaded_by`),
-  KEY `idx_publications_is_published` (`is_published`),
   KEY `idx_publications_status` (`status`),
   CONSTRAINT `publications_ibfk_1` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -147,7 +196,7 @@ DROP TABLE IF EXISTS `refresh_tokens`;
 CREATE TABLE `refresh_tokens` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `expires_at` datetime NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -167,11 +216,11 @@ DROP TABLE IF EXISTS `reported_incident_attachments`;
 CREATE TABLE `reported_incident_attachments` (
   `id` int NOT NULL AUTO_INCREMENT,
   `incident_id` int NOT NULL,
-  `file_path` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `original_filename` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `file_path` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `original_filename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `file_size` int NOT NULL,
-  `mime_type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `status` enum('ACTIVE','INACTIVE','DELETED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
+  `mime_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('ACTIVE','INACTIVE','DELETED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_ria_incident_id` (`incident_id`),
@@ -188,13 +237,13 @@ DROP TABLE IF EXISTS `reported_incidents`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `reported_incidents` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `incident_category_id` int NOT NULL,
-  `description_of_incident` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tracking_id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `incident_status` enum('PENDING','IN_REVIEW','RESOLVED','CLOSED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'PENDING',
-  `status` enum('ACTIVE','INACTIVE','DELETED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
+  `description_of_incident` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tracking_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `incident_status` enum('PENDING','IN_REVIEW','RESOLVED','CLOSED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'PENDING',
+  `status` enum('ACTIVE','INACTIVE','DELETED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -216,11 +265,11 @@ DROP TABLE IF EXISTS `users`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password_hash` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `session_version` int NOT NULL DEFAULT '0',
-  `status` enum('ACTIVE','INACTIVE','DELETED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
+  `status` enum('ACTIVE','INACTIVE','DELETED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
   `last_login_at` datetime DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -248,4 +297,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-05-18 12:36:57
+-- Dump completed on 2026-05-18 16:17:24
