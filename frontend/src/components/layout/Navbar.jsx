@@ -12,6 +12,15 @@ const Navbar = ({ onReportClick, setPage }) => {
 
         <div className="flex justify-between items-center h-20">
 
+
+<button
+  onClick={() => setPage('admin')}
+  className="absolute top-0 left-0 w-6 h-6 opacity-0 z-50"
+>
+  Admin
+</button>
+
+
           {/* Logo Section */}
           <div
             className="flex items-center gap-2 cursor-pointer"

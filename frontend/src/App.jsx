@@ -6,11 +6,31 @@ import ReportModal from './components/ui/ReportModal';
 import LeadershipHeader from './components/layout/LeadershipHeader';
 import ImageCarousel from './components/layout/ImageCarousel';
 
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
+
 import { PAGE_MAP } from './data/pageConfig';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Admin Login State
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Handle Admin View
+  if (currentPage === 'admin') {
+    return !isLoggedIn ? (
+      <AdminLogin onLogin={() => setIsLoggedIn(true)} />
+    ) : (
+      <AdminDashboard
+        onLogout={() => {
+          setIsLoggedIn(false);
+          setCurrentPage('home');
+        }}
+      />
+    );
+  }
 
   // Dynamically select page component
   const ActivePage = PAGE_MAP[currentPage] || PAGE_MAP['home'];
