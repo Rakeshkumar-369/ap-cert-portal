@@ -28,7 +28,7 @@ const About = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card className="bg-[#002B5B] text-white p-8 relative overflow-hidden group">
+        <Card className="bg-[#003366] text-white p-8 relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-full h-1 bg-[#00D4FF] shadow-[0_0_15px_#00D4FF]" />
           <Target className="text-[#00D4FF] mb-4" />
           <h4 className="text-lg font-bold uppercase mb-2">Our Mission</h4>

@@ -67,7 +67,7 @@ const Home = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-6 space-y-12 pb-20">
+    <div className="max-w-7xl mx-auto px-6 space-y-12">
 
       {/* 1. ANNOUNCEMENT RIBBON */}
       <AnnouncementRibbon />
