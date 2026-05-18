@@ -36,7 +36,7 @@ function App() {
   const ActivePage = PAGE_MAP[currentPage] || PAGE_MAP['home'];
 
   return (
-    <div className="min-h-screen bg-[#0A162F] font-sans text-white flex flex-col">
+    <div className="min-h-screen bg-[#F1F5F9] font-sans text-slate-900 flex flex-col">
 
       {/* Navbar */}
       <Navbar
@@ -53,7 +53,7 @@ function App() {
       </div>
 
       {/* Main Content */}
-      <main className="flex-grow min-h-[70vh]">
+      <main className="flex-grow min-h-[70vh] pb-20">
         <ActivePage />
       </main>
 

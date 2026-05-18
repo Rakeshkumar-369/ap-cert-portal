@@ -4,92 +4,93 @@ import Card from '../components/ui/Card';
 
 const Contact = () => {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-16">
-      <div className="mb-12 border-l-4 border-ap-gold pl-6">
-        <h1 className="text-4xl font-black uppercase tracking-tight mb-4">Contact AP-CERT</h1>
-        <p className="text-gray-400 max-w-2xl">
-          Get in touch for incident reporting, security advisories, or general inquiries. 
-          Our team operates 24/7 to ensure state-wide digital safety.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    /* Changed background from dark navy to a light, clean slate */
+    <div className="min-h-screen bg-[#F8FAFC] py-16 animate-in fade-in duration-700">
+      <div className="max-w-7xl mx-auto px-4">
         
-        {/* Contact Info Column */}
-        <div className="lg:col-span-1 space-y-6">
-          <Card className="border-ap-purple/20">
-            <div className="flex items-center gap-4 text-ap-gold mb-4">
-              <Clock size={24} />
-              <h2 className="font-bold uppercase tracking-widest text-sm">Availability</h2>
-            </div>
-            <p className="text-sm text-gray-300">24x7 Incident Monitoring & Response</p>
-            <p className="text-xs text-gray-500 mt-2">Non-emergency hours: Mon-Fri, 9AM - 6PM</p>
-          </Card>
-
-          <Card className="border-ap-purple/20">
-            <div className="space-y-6">
-              <div className="flex gap-4">
-                <Mail className="text-ap-lavender shrink-0" />
-                <div>
-                  <div className="text-xs font-bold uppercase text-gray-500">Emergency Email</div>
-                  <div className="text-sm font-mono text-white">incident@apcert.gov.in</div>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <Phone className="text-ap-lavender shrink-0" />
-                <div>
-                  <div className="text-xs font-bold uppercase text-gray-500">Toll-Free Helpline</div>
-                  <div className="text-sm font-mono text-white">1800-XX-XXXX</div>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <MapPin className="text-ap-lavender shrink-0" />
-                <div>
-                  <div className="text-xs font-bold uppercase text-gray-500">Headquarters</div>
-                  <div className="text-sm text-white">APTS Office, Vijayawada, Andhra Pradesh</div>
-                </div>
-              </div>
-            </div>
-          </Card>
+        {/* Header Section: Professional Navy Text on Light Background */}
+        <div className="mb-12 border-l-4 border-[#00D4FF] pl-6">
+          <h1 className="text-4xl font-black text-[#002B5B] uppercase tracking-tight">
+            Contact <span className="text-[#00D4FF]">AP-CERT</span>
+          </h1>
+          <p className="text-gray-500 mt-2 font-bold uppercase tracking-widest text-xs">
+            24/7 Cybersecurity Support & Incident Coordination
+          </p>
         </div>
 
-        {/* Secure Communication & PGP */}
-        <div className="lg:col-span-2">
-          <Card className="h-full border-ap-gold/20 bg-gradient-to-br from-[#162a54] to-ap-navy">
-            <div className="flex items-center gap-3 mb-6">
-              <ShieldCheck className="text-ap-gold" size={32} />
-              <h2 className="text-2xl font-bold">Secure Incident Reporting</h2>
-            </div>
-            
-            <p className="text-sm text-gray-300 mb-8 leading-relaxed">
-              For reporting sensitive vulnerabilities or incidents, we recommend using 
-              encrypted communication. Use our public PGP key to secure your emails.
-            </p>
-
-            <div className="bg-black/40 rounded-lg p-6 border border-ap-purple/30">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-xs font-bold uppercase tracking-widest text-ap-lavender">Public PGP Key Details</span>
-                <button className="text-[10px] bg-ap-purple/30 px-2 py-1 rounded text-white hover:bg-ap-purple transition-colors">Copy Key</button>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Left Column: Contact Cards with Glowing Borders */}
+          <div className="lg:col-span-1 space-y-6">
+            <Card className="bg-white border-none shadow-[0_4px_20px_rgba(0,0,0,0.05)] border-t-4 border-t-[#00D4FF] transition-transform hover:scale-[1.02]">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-[#002B5B] rounded-xl text-white shadow-lg shadow-blue-900/20">
+                  <Mail size={24} />
+                </div>
+                <div>
+                  <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email Support</h3>
+                  <p className="text-sm font-bold text-[#002B5B]">incident@apcert.gov.in</p>
+                </div>
               </div>
-              <pre className="text-[10px] md:text-xs text-ap-gold/80 font-mono leading-tight overflow-x-auto">
-                {`-----BEGIN PGP PUBLIC KEY BLOCK-----
-Version: GnuPG v2
+            </Card>
 
-mQENBGE2...[truncated for display]...
-... Key Fingerprint: 4E23 1F9A 88B2 10C4 ...
------END PGP PUBLIC KEY BLOCK-----`}
-              </pre>
-            </div>
+            <Card className="bg-white border-none shadow-[0_4px_20px_rgba(0,0,0,0.05)] border-t-4 border-t-[#00D4FF] transition-transform hover:scale-[1.02]">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-[#002B5B] rounded-xl text-white shadow-lg shadow-blue-900/20">
+                  <Phone size={24} />
+                </div>
+                <div>
+                  <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Help Desk</h3>
+                  <p className="text-sm font-bold text-[#002B5B]">+91 866 234 XXXX</p>
+                </div>
+              </div>
+            </Card>
 
-            <div className="mt-8 p-4 bg-ap-gold/10 rounded-lg border border-ap-gold/20">
-              <p className="text-xs text-ap-gold leading-relaxed">
-                <strong>Note:</strong> Reports sent via PGP are handled with the highest priority and 
-                confidentiality by the AP-CERT operations team.
-              </p>
-            </div>
-          </Card>
+            <Card className="bg-[#002B5B] text-white shadow-xl relative overflow-hidden group">
+              {/* Animated Glow Line */}
+              <div className="absolute top-0 right-0 w-1 h-full bg-[#00D4FF] shadow-[0_0_20px_#00D4FF] group-hover:w-2 transition-all" />
+              <div className="flex items-center gap-4">
+                <Clock size={24} className="text-[#00D4FF]" />
+                <div>
+                  <h3 className="text-[10px] font-black text-[#00D4FF] uppercase tracking-widest">Availability</h3>
+                  <p className="text-sm font-bold uppercase tracking-tight">Active 24/7 Response</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Right Column: Nodal Office with clean spacing */}
+          <div className="lg:col-span-2">
+            <Card className="h-full bg-white border-none shadow-[0_4px_25px_rgba(0,0,0,0.06)] relative overflow-hidden">
+               {/* Decorative subtle blue gradient corner */}
+               <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#00D4FF]/5 rounded-full blur-3xl" />
+               
+              <h3 className="text-xl font-bold text-[#002B5B] mb-8 flex items-center gap-2">
+                <MapPin className="text-[#00D4FF]" size={22} /> Nodal Office
+              </h3>
+              
+              <div className="space-y-6 text-gray-600 leading-relaxed relative z-10">
+                <div>
+                  <p className="font-black text-[#002B5B] text-lg uppercase tracking-tight">Andhra Pradesh Technology Services (APTS)</p>
+                  <p className="text-ap-gold font-bold text-xs uppercase tracking-widest mt-1">ITE&C Department, Govt. of Andhra Pradesh</p>
+                </div>
+                
+                <p className="text-sm font-medium">
+                  Vijayawada, Andhra Pradesh, India.
+                </p>
+                
+                <div className="pt-8 mt-10 border-t border-gray-100 flex items-center justify-between">
+                  <div className="flex items-center gap-3 text-[10px] font-black text-gray-400 uppercase tracking-tighter">
+                    <ShieldCheck size={16} className="text-green-500" /> Authorized Communication Channel
+                  </div>
+                  <button className="text-[10px] font-black text-[#002B5B] hover:text-[#00D4FF] uppercase tracking-widest transition-colors">
+                    View on Map →
+                  </button>
+                </div>
+              </div>
+            </Card>
+          </div>
         </div>
-
       </div>
     </div>
   );

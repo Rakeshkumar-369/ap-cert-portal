@@ -1,76 +1,117 @@
 import React from 'react';
-import { Activity, ShieldAlert, Globe, Radio } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ShieldCheck, Zap, AlertTriangle, Users, Activity, Target } from 'lucide-react';
 import Card from '../ui/Card';
 
-const stats = [
-  { label: "Threats Mitigated", value: "1,284", icon: ShieldAlert, color: "text-ap-gold" },
-  { label: "Data Analyzed", value: "14.2 TB", icon: Activity, color: "text-ap-lavender" },
-  { label: "State Entities Protected", value: "100+", icon: Globe, color: "text-ap-gold" },
-];
-
-const headlines = [
-  { id: 1, tag: "CERT-In", title: "New Ransomware variant targeting healthcare sector", date: "Today" },
-  { id: 2, tag: "ADVISORY", title: "Critical vulnerability in popular web servers", date: "2h ago" },
-  { id: 3, tag: "AP-CERT", title: "Cyber awareness workshop for state officials scheduled", date: "Yesterday" },
-];
-
 const StatsSection = () => {
+  // Maintaining the full data structure and logic
+  const statsData = [
+    {
+      id: 1,
+      label: "Threats Blocked",
+      value: "24,582",
+      subtext: "Last 24 Hours",
+      icon: <ShieldCheck size={28} />,
+      color: "text-green-600",
+      bg: "bg-green-50",
+      glow: "border-green-500/50"
+    },
+    {
+      id: 2,
+      label: "Active Monitors",
+      value: "458",
+      subtext: "State-wide Nodes",
+      icon: <Zap size={28} />,
+      color: "text-[#00D4FF]",
+      bg: "bg-blue-50",
+      glow: "border-[#00D4FF]/50"
+    },
+    {
+      id: 3,
+      label: "Critical Alerts",
+      value: "02",
+      subtext: "Immediate Action",
+      icon: <AlertTriangle size={28} />,
+      color: "text-red-600",
+      bg: "bg-red-50",
+      glow: "border-red-500/50"
+    },
+    {
+      id: 4,
+      label: "Trained Personnel",
+      value: "1,240",
+      subtext: "Capacity Built",
+      icon: <Users size={28} />,
+      color: "text-[#002B5B]",
+      bg: "bg-slate-100",
+      glow: "border-[#002B5B]/50"
+    }
+  ];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+  };
+
   return (
-    <section className="max-w-7xl mx-auto px-4 py-12">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Left: Key Metrics */}
-        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
-          {stats.map((stat, index) => (
-            <Card key={index} className="flex flex-col items-center text-center justify-center border-ap-purple/10 bg-ap-purple/5">
-              <stat.icon className={`${stat.color} mb-3`} size={32} />
-              <div className="text-3xl font-black text-white mb-1">{stat.value}</div>
-              <div className="text-xs font-bold uppercase tracking-widest text-gray-400">{stat.label}</div>
-            </Card>
-          ))}
-          
-          {/* Machine Learning Insight - Ref source 107 */}
-          <div className="md:col-span-3 mt-4 p-6 rounded-xl bg-gradient-to-r from-ap-purple/20 to-transparent border border-ap-purple/20">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-ap-purple flex items-center justify-center animate-pulse">
-                <Radio className="text-white" />
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+    >
+      {statsData.map((stat) => (
+        <motion.div key={stat.id} variants={itemVariants}>
+          <Card className={`relative group overflow-hidden bg-white border-none shadow-lg hover:shadow-2xl transition-all duration-300 border-b-4 ${stat.glow}`}>
+            {/* Background Decorative Element */}
+            <div className={`absolute -right-4 -top-4 w-24 h-24 ${stat.bg} rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500`} />
+            
+            <div className="relative z-10 flex flex-col gap-4">
+              <div className="flex justify-between items-start">
+                <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color} shadow-sm`}>
+                  {stat.icon}
+                </div>
+                <Activity size={16} className="text-gray-300 animate-pulse" />
               </div>
+
               <div>
-                <h4 className="font-bold text-ap-gold uppercase text-xs tracking-tighter">Live SOC Analytics</h4>
-                <p className="text-sm text-gray-300 italic">"Blended security analytics platform ingesting massive amounts of data using machine learning." [cite: 107]</p>
+                <h4 className="text-3xl font-black text-[#002B5B] tracking-tighter">
+                  {stat.value}
+                </h4>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    {stat.label}
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+                <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter flex items-center gap-1">
+                  <Target size={10} className={stat.color} /> {stat.subtext}
+                </span>
+                <div className="h-1 w-12 bg-gray-100 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ x: "-100%" }}
+                    whileInView={{ x: "0%" }}
+                    transition={{ duration: 1, delay: 0.5 }}
+                    className={`h-full w-full ${stat.color.replace('text', 'bg')}`}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Right: Headlines Feed */}
-        <div className="bg-[#162a54]/50 border border-ap-purple/20 rounded-xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-bold uppercase tracking-widest text-sm text-ap-lavender">Global Headlines</h3>
-            <span className="flex h-2 w-2 rounded-full bg-red-500 animate-ping"></span>
-          </div>
-          <div className="space-y-6">
-            {headlines.map((news) => (
-              <div key={news.id} className="group cursor-pointer">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] font-black bg-ap-navy border border-ap-purple/50 px-2 py-0.5 rounded text-ap-gold group-hover:bg-ap-gold group-hover:text-ap-navy transition-colors">
-                    {news.tag}
-                  </span>
-                  <span className="text-[10px] text-gray-500 uppercase">{news.date}</span>
-                </div>
-                <p className="text-sm font-medium leading-snug group-hover:text-ap-lavender transition-colors">
-                  {news.title}
-                </p>
-              </div>
-            ))}
-          </div>
-          <button className="w-full mt-8 py-2 border border-ap-purple/30 rounded text-xs font-bold uppercase hover:bg-ap-purple/10 transition-all">
-            View All Updates
-          </button>
-        </div>
-
-      </div>
-    </section>
+          </Card>
+        </motion.div>
+      ))}
+    </motion.div>
   );
 };
 

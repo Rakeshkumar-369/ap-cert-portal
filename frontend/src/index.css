@@ -4,22 +4,22 @@
 
 @layer base {
   body {
-    @apply bg-[#0E2148] text-white antialiased;
+    @apply bg-[#F8FAFC] text-slate-900 antialiased;
     font-family: 'Inter', system-ui, sans-serif;
   }
 }
 
-/* Custom scrollbar for that futuristic feel */
-::-webkit-scrollbar {
-  width: 8px;
+@keyframes scrollText {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
-::-webkit-scrollbar-track {
-  background: #0E2148;
+
+.animate-scroll {
+  display: flex;
+  width: max-content;
+  animation: scrollText 30s linear infinite;
 }
-::-webkit-scrollbar-thumb {
-  background: #483AA0;
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #7965C1;
+
+.animate-scroll:hover {
+  animation-play-state: paused;
 }

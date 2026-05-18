@@ -18,31 +18,38 @@ const AdminDashboard = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState('home');
 
   return (
-    <div className="flex h-screen bg-[#0A162F] overflow-hidden">
+    <div className="flex h-screen bg-slate-50 overflow-hidden">
       {/* 1. Sidebar on the LEFT */}
       <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={onLogout} />
 
       {/* 2. Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
-        <header className="flex justify-between items-start mb-12">
-          <div>
-            <h1 className="text-4xl font-black uppercase tracking-tight text-white">
-              {activeTab === 'home' && "Home Page Assets"}
-              {activeTab === 'resources' && "Resource Repository"}
-              {activeTab === 'incidents' && "Incident Command"}
-            </h1>
-            <p className="text-ap-lavender text-xs font-bold uppercase tracking-[0.3em] mt-2">
-              AP-CERT Administrative Control [cite: 99, 108]
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-             <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-             <span className="text-[10px] font-bold uppercase text-gray-500">Live Secure Session</span>
-          </div>
-        </header>
+      <div className="flex-1 overflow-y-auto p-10">
+      <header className="flex justify-between items-start mb-12">
+
+        <div>
+          <h1 className="text-4xl font-black uppercase tracking-tight text-[#003366]">
+            {activeTab === 'home' && "Home Page Assets"}
+            {activeTab === 'resources' && "Resource Repository"}
+            {activeTab === 'incidents' && "Incident Command"}
+          </h1>
+
+          <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.3em] mt-2">
+            AP-CERT Administrative Control
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+
+          <span className="text-[10px] font-bold uppercase text-slate-500">
+            Live Secure Session
+          </span>
+        </div>
+
+      </header>
 
         {/* Content Views */}
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           {activeTab === 'home' && <HomeManagement />}
           {activeTab === 'resources' && <ResourcesManagement />}
           {activeTab === 'incidents' && <IncidentViewer />}
@@ -72,25 +79,25 @@ const HomeManagement = () => {
     <div className="space-y-12">
       {/* 1. Leadership Section */}
       <section>
-        <h3 className="text-ap-gold font-bold mb-6 uppercase tracking-widest text-sm flex items-center gap-2">
+        <h3 className="text-[#003366] font-bold mb-6 uppercase tracking-widest text-sm flex items-center gap-2">
           <ImageIcon size={18} /> Leadership Profiles 
         </h3>
         <div className="grid grid-cols-1 gap-4">
           {leadership.map((member) => (
-            <Card key={member.id} className={`transition-all ${editId === member.id ? 'border-ap-gold bg-ap-gold/5' : 'border-ap-purple/10'}`}>
+            <Card key={member.id} className={`transition-all ${editId === member.id ? 'border-ap-gold bg-slate-50' : 'border-slate-200'}`}>
               <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                 <div className="flex items-center gap-6 flex-1 w-full">
                   <img src={member.img} alt="" className="w-16 h-16 rounded-full border-2 border-ap-lavender object-cover" />
                   
                   {editId === member.id ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
-                      <input type="text" defaultValue={member.name} className="bg-ap-navy border border-ap-purple/50 p-2 rounded text-sm text-white" />
-                      <input type="text" defaultValue={member.post} className="bg-ap-navy border border-ap-purple/50 p-2 rounded text-sm text-white" />
+                      <input type="text" defaultValue={member.name} className="bg-white border border-ap-purple/50 p-2 rounded text-sm text-slate-800" />
+                      <input type="text" defaultValue={member.post} className="bg-white border border-ap-purple/50 p-2 rounded text-sm text-slate-800" />
                     </div>
                   ) : (
                     <div className="flex-1">
-                      <div className="text-lg font-bold text-white">{member.name}</div>
-                      <div className="text-xs text-ap-lavender uppercase font-bold tracking-widest">{member.post}</div>
+                      <div className="text-lg font-bold text-slate-800">{member.name}</div>
+                      <div className="text-xs text-slate-500 uppercase font-bold tracking-widest">{member.post}</div>
                     </div>
                   )}
                 </div>
@@ -98,15 +105,15 @@ const HomeManagement = () => {
                 <div className="flex gap-2">
                   {editId === member.id ? (
                     <>
-                      <button onClick={() => handleSave(member.id)} className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-bold transition-all">
+                      <button onClick={() => handleSave(member.id)} className="bg-[#003366] hover:bg-green-500 text-slate-800 px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-bold transition-all">
                         <Save size={16} /> Save
                       </button>
-                      <button onClick={() => setEditId(null)} className="bg-gray-700 text-white px-4 py-2 rounded-lg text-xs font-bold">
+                      <button onClick={() => setEditId(null)} className="bg-gray-700 text-slate-800 px-4 py-2 rounded-lg text-xs font-bold">
                         Cancel
                       </button>
                     </>
                   ) : (
-                    <button onClick={() => setEditId(member.id)} className="text-ap-lavender hover:text-ap-gold p-2 transition-colors">
+                    <button onClick={() => setEditId(member.id)} className="text-slate-500 hover:text-[#003366] p-2 transition-colors">
                       <Edit2 size={20} />
                     </button>
                   )}
@@ -119,15 +126,15 @@ const HomeManagement = () => {
 
       {/* 2. Carousel Management - 6 Slides */}
       <section>
-        <h3 className="text-ap-lavender font-bold mb-6 uppercase tracking-widest text-sm">Carousel Assets (6 Slides) [cite: 1]</h3>
+        <h3 className="text-slate-500 font-bold mb-6 uppercase tracking-widest text-sm">Carousel Assets (6 Slides) [cite: 1]</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <Card key={i} className="border-ap-purple/10">
+            <Card key={i} className="border-slate-200">
                <div className="flex justify-between items-start mb-4">
-                  <span className="text-[10px] font-black text-ap-gold uppercase tracking-tighter">Slide #{i}</span>
-                  <button className="text-ap-lavender hover:text-ap-gold"><Edit2 size={16} /></button>
+                  <span className="text-[10px] font-black text-[#003366] uppercase tracking-tighter">Slide #{i}</span>
+                  <button className="text-slate-500 hover:text-[#003366]"><Edit2 size={16} /></button>
                </div>
-               <div className="h-32 bg-ap-navy/50 rounded-lg mb-4 border border-ap-purple/5 border-dashed flex items-center justify-center text-gray-600 text-xs italic">
+               <div className="h-32 bg-white/50 rounded-lg mb-4 border border-ap-purple/5 border-dashed flex items-center justify-center text-gray-600 text-xs italic">
                   Image Preview / Path
                </div>
                <div className="text-sm font-bold truncate uppercase tracking-tight">APCSOC Operations [cite: 104, 106]</div>
@@ -163,8 +170,8 @@ const ResourcesManagement = () => {
           key={item.id}
           className={`p-4 rounded-xl border transition-all ${
             editingId===item.id
-              ? 'border-ap-gold bg-ap-gold/5'
-              : 'border-ap-purple/10 bg-black/20'
+              ? 'border-ap-gold bg-slate-50'
+              : 'border-slate-200 bg-slate-50'
           }`}
         >
 
@@ -172,7 +179,7 @@ const ResourcesManagement = () => {
 
             <div className="flex items-center gap-4 flex-1">
 
-              <FileText className="text-ap-lavender" size={18}/>
+              <FileText className="text-slate-500" size={18}/>
 
               {editingId===item.id ? (
 
@@ -181,13 +188,13 @@ const ResourcesManagement = () => {
                   <input
                     type="text"
                     defaultValue={item.name}
-                    className="bg-ap-navy border border-ap-purple/50 p-2 rounded text-xs text-white flex-1"
+                    className="bg-white border border-ap-purple/50 p-2 rounded text-xstext-slate-800 flex-1"
                   />
 
                   <input
                     type="text"
                     defaultValue={item.path}
-                    className="bg-ap-navy border border-ap-purple/50 p-2 rounded text-xs text-white flex-1"
+                    className="bg-white border border-ap-purple/50 p-2 rounded text-xs text-slate-800 flex-1"
                   />
 
                 </div>
@@ -196,7 +203,7 @@ const ResourcesManagement = () => {
 
                 <div className="flex-1">
 
-                  <div className="text-sm font-bold text-white">
+                  <div className="text-sm font-bold text-slate-800">
                     {item.name}
                   </div>
 
@@ -216,7 +223,7 @@ const ResourcesManagement = () => {
 
                 <button
                   onClick={()=>setEditingId(null)}
-                  className="text-green-500 hover:text-white transition-all text-[10px] font-black uppercase flex items-center gap-1"
+                  className="text-green-500 hover:text-slate-800 transition-all text-[10px] font-black uppercase flex items-center gap-1"
                 >
                   <Save size={14}/>
                   Save
@@ -227,7 +234,7 @@ const ResourcesManagement = () => {
                 <>
                   <button
                     onClick={()=>setEditingId(item.id)}
-                    className="text-gray-500 hover:text-ap-gold transition-colors"
+                    className="text-gray-500 hover:text-[#003366] transition-colors"
                   >
                     <Edit2 size={16}/>
                   </button>
@@ -246,7 +253,7 @@ const ResourcesManagement = () => {
         </div>
       ))}
 
-      <button className="w-full py-3 border-2 border-dashed border-ap-purple/20 rounded-xl text-gray-500 text-[10px] font-black uppercase tracking-widest hover:border-ap-gold hover:text-ap-gold transition-all mt-4">
+      <button className="w-full py-3 border-2 border-dashed border-slate-200 rounded-xl text-gray-500 text-[10px] font-black uppercase tracking-widest hover:border-ap-gold hover:text-[#003366] transition-all mt-4">
         + Add New {type}
       </button>
 
@@ -258,22 +265,22 @@ const ResourcesManagement = () => {
 
       {/* Downloads */}
 
-      <div className="border border-ap-purple/20 rounded-2xl overflow-hidden">
+      <div className="border border-slate-200 rounded-2xl overflow-hidden">
 
         <button
           onClick={()=>setOpenSection(openSection==='downloads'?null:'downloads')}
-          className="w-full flex justify-between items-center p-6 bg-ap-navy/40 hover:bg-ap-navy/60 transition-all"
+          className="w-full flex justify-between items-center p-6 bg-white/40 hover:bg-white/60 transition-all"
         >
 
           <div className="flex items-center gap-4">
 
-            <div className="p-2 bg-ap-gold/10 rounded-lg text-ap-gold">
+            <div className="p-2 bg-ap-gold/10 rounded-lg text-[#003366]">
               <Download size={20}/>
             </div>
 
             <div className="text-left">
 
-              <h3 className="font-bold text-white uppercase tracking-widest text-sm">
+              <h3 className="font-bold text-slate-800 uppercase tracking-widest text-sm">
                 Downloads
               </h3>
 
@@ -288,7 +295,7 @@ const ResourcesManagement = () => {
           <ChevronDown
             className={`transition-transform duration-300 ${
               openSection==='downloads'
-                ? 'rotate-180 text-ap-gold'
+                ? 'rotate-180 text-[#003366]'
                 : 'text-gray-500'
             }`}
           />
@@ -296,7 +303,7 @@ const ResourcesManagement = () => {
         </button>
 
         {openSection==='downloads' && (
-          <div className="p-6 bg-ap-navy/20">
+          <div className="p-6 bg-white/20">
             {renderFileList(downloads,'Download')}
           </div>
         )}
@@ -305,22 +312,22 @@ const ResourcesManagement = () => {
 
       {/* Publications */}
 
-      <div className="border border-ap-purple/20 rounded-2xl overflow-hidden">
+      <div className="border border-slate-200 rounded-2xl overflow-hidden">
 
         <button
           onClick={()=>setOpenSection(openSection==='publications'?null:'publications')}
-          className="w-full flex justify-between items-center p-6 bg-ap-navy/40 hover:bg-ap-navy/60 transition-all"
+          className="w-full flex justify-between items-center p-6 bg-white/40 hover:bg-white/60 transition-all"
         >
 
           <div className="flex items-center gap-4">
 
-            <div className="p-2 bg-ap-lavender/10 rounded-lg text-ap-lavender">
+            <div className="p-2 bg-ap-lavender/10 rounded-lg text-slate-500">
               <FileBarChart size={20}/>
             </div>
 
             <div className="text-left">
 
-              <h3 className="font-bold text-white uppercase tracking-widest text-sm">
+              <h3 className="font-bold text-slate-800 uppercase tracking-widest text-sm">
                 Publications
               </h3>
 
@@ -335,7 +342,7 @@ const ResourcesManagement = () => {
           <ChevronDown
             className={`transition-transform duration-300 ${
               openSection==='publications'
-                ? 'rotate-180 text-ap-lavender'
+                ? 'rotate-180 text-slate-500'
                 : 'text-gray-500'
             }`}
           />
@@ -343,7 +350,7 @@ const ResourcesManagement = () => {
         </button>
 
         {openSection==='publications' && (
-          <div className="p-6 bg-ap-navy/20">
+          <div className="p-6 bg-white/20">
             {renderFileList(publications,'Publication')}
           </div>
         )}
@@ -356,14 +363,14 @@ const ResourcesManagement = () => {
 
 // --- Sub-Component: Incident Viewer ---
 const IncidentViewer = () => (
-  <Card className="border-ap-purple/20 p-0 overflow-hidden">
+  <Card className="border-slate-200 p-0 overflow-hidden">
     <table className="w-full text-left">
       <thead className="bg-ap-purple/10">
         <tr>
-          <th className="p-4 text-[10px] font-black uppercase text-ap-lavender">ID & Reporter </th>
-          <th className="p-4 text-[10px] font-black uppercase text-ap-lavender">Category </th>
-          <th className="p-4 text-[10px] font-black uppercase text-ap-lavender">Evidence </th>
-          <th className="p-4 text-[10px] font-black uppercase text-ap-lavender text-right">View Case</th>
+          <th className="p-4 text-[10px] font-black uppercase text-slate-500">ID & Reporter </th>
+          <th className="p-4 text-[10px] font-black uppercase text-slate-500">Category </th>
+          <th className="p-4 text-[10px] font-black uppercase text-slate-500">Evidence </th>
+          <th className="p-4 text-[10px] font-black uppercase text-slate-500 text-right">View Case</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-ap-purple/10">
@@ -376,13 +383,13 @@ const IncidentViewer = () => (
             <td className="p-4 text-xs">Phishing / Scam </td>
             <td className="p-4">
               <div className="flex gap-2">
-                 <span className="text-[9px] bg-ap-navy border border-ap-purple/30 px-2 py-1 rounded text-gray-400 flex items-center gap-1 cursor-pointer hover:text-ap-gold">
+                 <span className="text-[9px] bg-white border border-ap-purple/30 px-2 py-1 rounded text-gray-400 flex items-center gap-1 cursor-pointer hover:text-[#003366]">
                     <Eye size={10} /> View (2 Files)
                  </span>
               </div>
             </td>
             <td className="p-4 text-right">
-              <button className="text-ap-gold hover:scale-110 transition-transform"><FileText size={18} /></button>
+              <button className="text-[#003366] hover:scale-110 transition-transform"><FileText size={18} /></button>
             </td>
           </tr>
         ))}
