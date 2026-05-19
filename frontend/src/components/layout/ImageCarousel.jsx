@@ -5,39 +5,39 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 const carouselData = [
   {
     id: 1,
-    src: `${import.meta.env.BASE_URL}images/cyber-1.png`,
-    title: "APCSOC OPERATIONS",
-    desc: "24/7 MONITORING OF STATE INFRASTRUCTURE"
+    src: `${import.meta.env.BASE_URL}images/cyber-1.jpg`,
+    title: "Inauguration",
+    desc: "Unveiling the APCSOC Shield"
   },
   {
     id: 2,
     src: `${import.meta.env.BASE_URL}images/cyber-2.png`,
-    title: "CYBER FORENSICS",
-    desc: "BUILDING EXPERT DIGITAL INVESTIGATION CAPABILITY"
+    title: "Tracking Incidents",
+    desc: "24*7 CYBERSECURITY MONITORING FOR ANDHRA PRADESH"
   },
   {
     id: 3,
     src: `${import.meta.env.BASE_URL}images/cyber-3.jpg`,
     title: "CAPACITY BUILDING",
-    desc: "TRAINING THE NEXT GENERATION OF CYBER FORCES"
+    desc: "Live Operations Walk-throughs & Training Drills"
   },
   {
     id: 4,
-    src: `${import.meta.env.BASE_URL}images/cyber-4.jpg`,
-    title: "INCIDENT RESPONSE",
-    desc: "RAPID MITIGATION OF CYBERSECURITY THREATS"
+    src: `${import.meta.env.BASE_URL}images/cyber-4.png`,
+    title: "Global Connectivity",
+    desc: "Mapping Cyber Threats Across Borders in Real-Time"
   },
   {
     id: 5,
     src: `${import.meta.env.BASE_URL}images/cyber-5.jpg`,
-    title: "THREAT INTELLIGENCE",
-    desc: "ADVANCED MACHINE LEARNING FOR THREAT DETECTION"
+    title: "Live Demonstration",
+    desc: "Reviewing Operational Center Systems"
   },
   {
     id: 6,
     src: `${import.meta.env.BASE_URL}images/cyber-6.jpg`,
-    title: "CITIZEN SAFETY",
-    desc: "PROACTIVE ADVISORIES FOR ANDHRA PRADESH"
+    title: "Facility Inspection",
+    desc: "Touring the Operations Floor and Infrastructure"
   }
 ];
 
