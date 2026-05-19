@@ -16,6 +16,8 @@ const galleryRoutes = require('./routes/galleryRoutes');
 const publicationRoutes = require('./routes/publicationRoutes');
 const downloadRoutes = require('./routes/downloadRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const vulnerabilityRoutes = require('./routes/vulnerabilityRoutes');
+const cisaRoutes = require('./routes/cisaRoutes');
 
 // Error Handler
 const errorHandler = require('./middleware/errorMiddleware');
@@ -63,6 +65,8 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/publications', publicationRoutes);
 app.use('/api/downloads', downloadRoutes);
 app.use('/api/profiles', profileRoutes);
+app.use('/api/vulnerability', vulnerabilityRoutes);
+app.use('/api/cisa', cisaRoutes);
 
 // Serve uploaded files (protected by path — only specific dirs exposed)
 //app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
