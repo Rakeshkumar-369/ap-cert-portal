@@ -1,62 +1,132 @@
-import React from 'react';
-import { Lock, User, ShieldCheck, Activity } from 'lucide-react';
-import Card from '../components/ui/Card';
+import { useState } from 'react';
+import { Shield, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { authAPI } from '../services/api'; // adjust path
 
 const AdminLogin = ({ onLogin }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await authAPI.login(email, password);
+
+      // Store the token
+      localStorage.setItem('token', res.token);
+
+      // Notify parent if provided (kept for compatibility)
+      if (onLogin) {
+        onLogin({ success: true, token: res.token });
+      }
+    } catch (err) {
+      const message =
+        err.message === 'Failed to fetch'
+          ? 'Network error. Please check your connection.'
+          : err.message || 'Login failed. Please check your credentials.';
+      setError(message);
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 bg-ap-navy">
-      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-        
-        {/* Left Side: Auth Metrics */}
-        <div className="hidden md:block space-y-6">
-          <h2 className="text-2xl font-black uppercase tracking-tighter text-ap-gold flex items-center gap-2">
-            <Activity className="animate-pulse" /> Security Portal
-          </h2>
-          <div className="grid grid-cols-1 gap-4">
-            <Card className="bg-ap-purple/10 border-ap-purple/20">
-              <div className="text-[10px] uppercase font-bold text-ap-lavender mb-1">Last System Sync</div>
-              <div className="text-sm font-mono text-white">2026-05-18 11:00 AM</div>
-            </Card>
-            <Card className="bg-ap-purple/10 border-ap-purple/20">
-              <div className="text-[10px] uppercase font-bold text-ap-lavender mb-1">Active Admin Sessions</div>
-              <div className="text-sm font-mono text-white">02 Authorized</div>
-            </Card>
+    <div className="min-h-screen bg-[#0A162F] flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        {/* Logo/Brand */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-ap-gold/10 mb-4">
+            <Shield className="w-10 h-10 text-ap-gold" />
           </div>
+          <h1 className="text-3xl font-black uppercase tracking-tight text-white">
+            Admin Access
+          </h1>
+          <p className="text-ap-lavender text-xs font-bold uppercase tracking-[0.3em] mt-2">
+            AP-CERT Control Panel
+          </p>
         </div>
 
-        {/* Right Side: Login Form */}
-        <Card className="border-ap-lavender/30 p-10 bg-[#112240]">
-          <div className="text-center mb-8">
-            <ShieldCheck className="mx-auto text-ap-gold mb-2" size={48} />
-            <h1 className="text-xl font-bold uppercase tracking-widest">Admin Access</h1>
-          </div>
+        {/* Login Form */}
+        <div className="bg-ap-navy/50 backdrop-blur-sm rounded-2xl border border-ap-purple/20 p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                <p className="text-red-400 text-sm text-center">{error}</p>
+              </div>
+            )}
 
-          <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); onLogin(); }}>
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase text-ap-lavender tracking-widest flex items-center gap-2">
-                <User size={14} /> Admin ID
+            {/* Email Field */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-ap-lavender mb-2">
+                Email Address
               </label>
-              <input type="text" className="w-full bg-ap-navy border border-ap-purple/30 rounded-xl p-3 focus:border-ap-gold outline-none transition-all" placeholder="Enter ID" />
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-[#0A162F] border border-ap-purple/30 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-ap-gold transition-colors"
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase text-ap-lavender tracking-widest flex items-center gap-2">
-                <Lock size={14} /> Password
+            {/* Password Field */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-ap-lavender mb-2">
+                Password
               </label>
-              <input type="password" className="w-full bg-ap-navy border border-ap-purple/30 rounded-xl p-3 focus:border-ap-gold outline-none transition-all" placeholder="••••••••" />
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-[#0A162F] border border-ap-purple/30 rounded-lg pl-10 pr-12 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-ap-gold transition-colors"
+                  placeholder="Enter your password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-ap-gold transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
-            <div className="flex justify-between items-center">
-              <button type="button" className="text-[10px] text-gray-500 hover:text-ap-gold uppercase font-bold transition-colors">
-                Forgot Password?
-              </button>
-            </div>
-
-            <button type="submit" className="w-full bg-ap-gold text-ap-navy font-black py-4 rounded-xl uppercase tracking-widest text-xs hover:bg-white transition-all shadow-lg shadow-ap-gold/10">
-              Authenticate & Enter
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-ap-gold hover:bg-ap-gold/80 text-ap-navy py-3 rounded-lg font-bold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-ap-navy border-t-transparent rounded-full animate-spin"></div>
+                  Authenticating...
+                </>
+              ) : (
+                'Login to Dashboard'
+              )}
             </button>
           </form>
-        </Card>
+        </div>
       </div>
     </div>
   );

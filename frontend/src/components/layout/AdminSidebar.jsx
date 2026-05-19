@@ -1,7 +1,22 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Home, FolderOpen, AlertOctagon, LogOut, ShieldCheck } from 'lucide-react';
+import { authAPI } from '../../services/api'; // adjust path as needed
 
-const AdminSidebar = ({ activeTab, setActiveTab, onLogout }) => {
+const AdminSidebar = ({ activeTab, setActiveTab }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await authAPI.logout();
+    } catch (err) {
+      console.error('Logout failed:', err);
+    } finally {
+      navigate('/');
+      window.location.reload();
+    }
+  };
+// Change this reload - this is temporary fix. :)
   const menu = [
     { id: 'home', label: 'Home Page CMS', icon: Home },
     { id: 'resources', label: 'Resources Management', icon: FolderOpen },
@@ -15,8 +30,12 @@ const AdminSidebar = ({ activeTab, setActiveTab, onLogout }) => {
           <ShieldCheck className="text-white" size={24} />
         </div>
         <div className="flex flex-col">
-          <span className="font-black text-ap-navy uppercase tracking-tighter text-lg leading-none">AP-CERT</span>
-          <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Admin Portal</span>
+          <span className="font-black text-ap-navy uppercase tracking-tighter text-lg leading-none">
+            AP-CERT
+          </span>
+          <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+            Admin Portal
+          </span>
         </div>
       </div>
 
@@ -26,9 +45,9 @@ const AdminSidebar = ({ activeTab, setActiveTab, onLogout }) => {
             key={item.id}
             onClick={() => setActiveTab(item.id)}
             className={`w-full flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
-              activeTab === item.id 
-              ? 'bg-ap-navy text-white shadow-md' 
-              : 'text-slate-600 hover:bg-slate-100'
+              activeTab === item.id
+                ? 'bg-ap-navy text-white shadow-md'
+                : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
             <item.icon size={18} />
@@ -38,8 +57,11 @@ const AdminSidebar = ({ activeTab, setActiveTab, onLogout }) => {
       </nav>
 
       <div className="mt-auto pt-6 border-t border-gray-100">
-        <button onClick={onLogout} className="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-bold text-red-600 hover:bg-red-50 transition-all">
-          <LogOut size={18} /> Exit Session
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-bold text-red-600 hover:bg-red-50 transition-all"
+        >
+          <LogOut size={18} /> Logout
         </button>
       </div>
     </div>
