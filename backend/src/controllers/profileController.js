@@ -1,4 +1,6 @@
 // src/controllers/profileController.js
+const path = require('path');
+const fs = require('fs');
 const profileService = require('../services/profileService');
 const ApiResponse = require('../utils/ApiResponse');
 const { parsePagination, buildPaginationMeta } = require('../utils/pagination');
@@ -82,10 +84,33 @@ const deleteProfile = async (req, res, next) => {
   }
 };
 
+const serveImage = async (req, res, next) => {
+  logger.debug(`➜ [profileController] Serving profile image: ${req.params.id}`);
+  try {
+    const { id } = req.params;
+    const profile = await profileService.getProfile(parseInt(id));
+
+    if (!profile.image_path) {
+      return res.status(404).json(ApiResponse.error('No image found for this profile'));
+    }
+
+    const filePath = path.join(__dirname, '../..', profile.image_path);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json(ApiResponse.error('Image file not found on server'));
+    }
+
+    res.download(filePath, profile.original_filename);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createProfile,
   listProfiles,
   getProfile,
   updateProfile,
-  deleteProfile
+  deleteProfile,
+  serveImage
 };

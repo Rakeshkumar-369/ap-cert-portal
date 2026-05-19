@@ -14,6 +14,7 @@ const { validatePagination } = require('../validators/common');
 // Public routes (unauthenticated)
 router.get('/', validatePagination, profileController.listProfiles);
 router.get('/:id', idValidation, profileController.getProfile);
+router.get('/:id/download', idValidation, profileController.serveImage);
 
 // Authenticated routes
 router.post(
