@@ -2,6 +2,8 @@
 const cron = require('node-cron');
 const pool = require('../config/db');
 const logger = require('../utils/logger');
+const { cleanupExpired } = require('./captchaService');
+setInterval(cleanupExpired, 10 * 60 * 1000); // every 10 minutes
 
 /**
  * Data Cleanup Service

@@ -5,9 +5,12 @@ const authMiddleware = require('../middleware/authMiddleware');
 const { changePasswordValidation } = require('../validators/authValidator');
 const authController = require('../controllers/authController');
 const { loginValidation } = require('../validators/authValidator');
+const { createRateLimiter } = require('../middleware/rateLimiter');
+const { requireCaptcha } = require('../middleware/captchaMiddleware');
+const loginLimiter = createRateLimiter(5, 15); // 5 attempts per 15 minutes
 
 // Public routes
-router.post('/login', loginValidation, authController.login);
+router.post('/login', requireCaptcha, loginLimiter, loginValidation, authController.login);
 router.post('/refresh', authController.refresh);
 router.post('/logout', authController.logout);
 router.post(

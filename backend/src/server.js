@@ -8,6 +8,10 @@ const securityHeaders = require('./middleware/securityHeaders');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const logger = require('./utils/logger');
+const { createRateLimiter } = require('./middleware/rateLimiter');
+
+// Limit CAPTCHA generation to prevent abuse (e.g., 10 per minute per IP)
+const captchaLimiter = createRateLimiter(10, 1);
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
@@ -18,6 +22,7 @@ const downloadRoutes = require('./routes/downloadRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const vulnerabilityRoutes = require('./routes/vulnerabilityRoutes');
 const cisaRoutes = require('./routes/cisaRoutes');
+const captchaRoutes = require('./routes/captchaRoutes');
 
 // Error Handler
 const errorHandler = require('./middleware/errorMiddleware');
@@ -67,6 +72,7 @@ app.use('/api/downloads', downloadRoutes);
 app.use('/api/profiles', profileRoutes);
 app.use('/api/vulnerability', vulnerabilityRoutes);
 app.use('/api/cisa', cisaRoutes);
+app.use('/api/captcha', captchaRoutes);
 
 // Serve uploaded files (protected by path — only specific dirs exposed)
 //app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

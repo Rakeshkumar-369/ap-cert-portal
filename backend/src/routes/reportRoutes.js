@@ -12,11 +12,13 @@ const {
   updateStatusValidation
 } = require('../validators/reportValidator');
 const { uploadMultipleFiles, handleMulterError } = require('../middleware/fileUploadMiddleware');
+const { requireCaptcha } = require('../middleware/captchaMiddleware');
 
 // ===== PUBLIC ROUTES (Unauthenticated) =====
 router.get('/categories', reportController.getCategories);
 router.post(
   '/',
+  requireCaptcha,
   uploadMultipleFiles,
   handleMulterError,
   submitIncidentValidation,
@@ -24,7 +26,7 @@ router.post(
 );
 
 // POST (not GET) — body: { tracking_id } prevents Wayback Machine URL capture
-router.post('/status', checkStatusValidation, reportController.checkStatus);
+router.post('/status', requireCaptcha, checkStatusValidation, reportController.checkStatus);
 
 // POST (not GET) — body: { tracking_id, attachment_id } prevents URL exposure
 router.post('/attachments/download', downloadAttachmentValidation, reportController.downloadAttachmentPost);
