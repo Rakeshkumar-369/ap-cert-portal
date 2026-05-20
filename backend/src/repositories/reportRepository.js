@@ -95,6 +95,9 @@ class ReportRepository {
     if (filters.status) {
       sql += ` AND ri.status = ?`;
       params.push(filters.status);
+    }else {
+      // By default, exclude soft-deleted incidents
+      sql += ` AND ri.status != 'DELETED'`;
     }
 
     if (filters.incident_status) {
@@ -125,6 +128,8 @@ class ReportRepository {
     if (filters.status) {
       sql += ` AND ri.status = ?`;
       params.push(filters.status);
+    }else {
+      sql += ` AND ri.status != 'DELETED'`;
     }
 
     if (filters.incident_status) {
