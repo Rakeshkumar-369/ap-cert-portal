@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminSidebar from '../components/layout/AdminSidebar';
 import Card from '../components/ui/Card';
+import { authAPI } from '../services/api';
 import {
   Plus,
   Edit2,
@@ -27,16 +28,27 @@ import {
   API_BASE
 } from '../services/api';
 
-const getToken = () => localStorage.getItem('adminToken');
+const getToken = () => localStorage.getItem('token');
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('home');
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminToken');
-    navigate('/admin', { replace: true });
-  };
+  const handleLogout = async () => {
+  const token = getToken();   
+  console.log('Logging out with token:', token);
+  try {
+    await authAPI.logout(token);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    console.log('Clearing localStorage and redirecting to login');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/', { replace: true });
+    window.location.reload(); // Force reload to reset state
+  }
+};
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">

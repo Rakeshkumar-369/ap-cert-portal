@@ -3,19 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Home, FolderOpen, AlertOctagon, LogOut, ShieldCheck } from 'lucide-react';
 import { authAPI } from '../../services/api'; // adjust path as needed
 
-const AdminSidebar = ({ activeTab, setActiveTab }) => {
+const AdminSidebar = ({ activeTab, setActiveTab, onLogout }) => {
   const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await authAPI.logout();
-    } catch (err) {
-      console.error('Logout failed:', err);
-    } finally {
-      navigate('/');
-      window.location.reload();
-    }
-  };
 // Change this reload - this is temporary fix. :)
   const menu = [
     { id: 'home', label: 'Home Page CMS', icon: Home },
@@ -58,11 +47,11 @@ const AdminSidebar = ({ activeTab, setActiveTab }) => {
 
       <div className="mt-auto pt-6 border-t border-gray-100">
         <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-bold text-red-600 hover:bg-red-50 transition-all"
-        >
-          <LogOut size={18} /> Logout
-        </button>
+  onClick={onLogout}   // <-- use onLogout passed from AdminDashboard
+  className="w-full flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-bold text-red-600 hover:bg-red-50 transition-all"
+>
+  <LogOut size={18} /> Logout
+</button>
       </div>
     </div>
   );

@@ -10,37 +10,49 @@ const AdminLogin = ({ onLogin }) => {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+  e.preventDefault();
+  setError('');
+  setLoading(true);
 
-    if (!email || !password) {
-      setError('Please enter both email and password');
-      setLoading(false);
-      return;
+  if (!email || !password) {
+    setError('Please enter both email and password');
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const res = await authAPI.login(email, password);
+
+    // Extract token and user from API response
+    const token = res.data[0].accessToken;
+    const user = res.data[0].user;
+
+    // Store in localStorage
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+
+    // Notify parent if provided
+    if (onLogin) {
+      onLogin({
+        success: true,
+        token,
+        user,
+      });
     }
 
-    try {
-      const res = await authAPI.login(email, password);
+  } catch (err) {
+    const message =
+      err.message === 'Failed to fetch'
+        ? 'Network error. Please check your connection.'
+        : err.message || 'Login failed. Please check your credentials.';
 
-      // Store the token
-      localStorage.setItem('token', res.token);
+    setError(message);
+    console.error('Login error:', err);
 
-      // Notify parent if provided (kept for compatibility)
-      if (onLogin) {
-        onLogin({ success: true, token: res.token });
-      }
-    } catch (err) {
-      const message =
-        err.message === 'Failed to fetch'
-          ? 'Network error. Please check your connection.'
-          : err.message || 'Login failed. Please check your credentials.';
-      setError(message);
-      console.error('Login error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#0A162F] flex items-center justify-center p-4">

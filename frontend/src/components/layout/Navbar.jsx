@@ -123,7 +123,7 @@ const Navbar = ({ setPage, onReportClick }) => {
                   <Globe size={10} /> State Infrastructure Active
                 </span>
               </div>
-              <img src="/images/ap-logo.png" alt="AP Logo" className="h-14 object-contain" />
+              <img src={`${import.meta.env.BASE_URL}images/logo.jpeg`} className="h-14 object-contain" />
             </div>
 
             {/* Mobile Toggle inside Branding Area */}
