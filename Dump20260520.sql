@@ -1,10 +1,10 @@
 CREATE DATABASE  IF NOT EXISTS `apcrt` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `apcrt`;
--- MySQL dump 10.13  Distrib 8.0.44, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.46, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: apcrt
 -- ------------------------------------------------------
--- Server version	8.0.44
+-- Server version	8.0.45
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -41,7 +41,7 @@ CREATE TABLE `audit_logs` (
   KEY `idx_audit_logs_action` (`action`),
   KEY `idx_audit_logs_created_at` (`created_at`),
   CONSTRAINT `audit_logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -50,6 +50,7 @@ CREATE TABLE `audit_logs` (
 
 LOCK TABLES `audit_logs` WRITE;
 /*!40000 ALTER TABLE `audit_logs` DISABLE KEYS */;
+INSERT INTO `audit_logs` VALUES (1,1,'AUTH','LOGIN_SUCCESS','users',1,'UPDATE users SET session_version = session_version + 1 WHERE id = ?; DELETE FROM refresh_tokens WHERE user_id = ?','Successful login for admin (admin@gov.in)','127.0.0.1','2026-05-20 11:03:23'),(2,1,'DOWNLOADS','UPLOAD','downloads',1,'INSERT INTO downloads ...','Uploaded download: AP Cyber Security Framework Guidelines - GO MS 18 (2019).pdf (2291337 bytes)','127.0.0.1','2026-05-20 11:04:20'),(3,1,'DOWNLOADS','UPLOAD','downloads',2,'INSERT INTO downloads ...','Uploaded download: AP Cyber Security Policy - GO MS 2 (2017).PDF (137564 bytes)','127.0.0.1','2026-05-20 11:04:36'),(4,1,'DOWNLOADS','UPLOAD','downloads',3,'INSERT INTO downloads ...','Uploaded download: APCSOC (Onboarding)Security Monitoring - GO MS 6 (2019).PDF (97176 bytes)','127.0.0.1','2026-05-20 11:05:28'),(5,1,'DOWNLOADS','UPLOAD','downloads',4,'INSERT INTO downloads ...','Uploaded download: APTS Cyber Security Service Tariffs - GO MS 11 (2024).pdf (544279 bytes)','127.0.0.1','2026-05-20 11:05:43'),(6,1,'DOWNLOADS','UPLOAD','downloads',5,'INSERT INTO downloads ...','Uploaded download: Cyber Security Assurance Services - GO MS 4 (2019).PDF (108775 bytes)','127.0.0.1','2026-05-20 11:05:55');
 /*!40000 ALTER TABLE `audit_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -90,21 +91,21 @@ DROP TABLE IF EXISTS `downloads`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `downloads` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `title` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `file_path` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `original_filename` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `file_path` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `original_filename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `file_size` int NOT NULL,
-  `mime_type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mime_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `uploaded_by` int NOT NULL,
-  `status` enum('ACTIVE','INACTIVE','DELETED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
+  `status` enum('ACTIVE','INACTIVE','DELETED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_downloads_uploaded_by` (`uploaded_by`),
   KEY `idx_downloads_status` (`status`),
   CONSTRAINT `fk_downloads_uploaded_by` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -113,6 +114,7 @@ CREATE TABLE `downloads` (
 
 LOCK TABLES `downloads` WRITE;
 /*!40000 ALTER TABLE `downloads` DISABLE KEYS */;
+INSERT INTO `downloads` VALUES (1,'AP Cyber Security Framework Guidelines - GO MS 18 (2019)',NULL,'uploads/downloads/1779255260567_AP_Cyber_Security_Framework_Guidelines_-_GO_MS_18__2019_.pdf','AP Cyber Security Framework Guidelines - GO MS 18 (2019).pdf',2291337,'application/pdf',1,'ACTIVE','2026-05-20 11:04:20','2026-05-20 11:04:20'),(2,'AP Cyber Security Policy - GO MS 2 (2017)',NULL,'uploads/downloads/1779255275986_AP_Cyber_Security_Policy_-_GO_MS_2__2017_.PDF','AP Cyber Security Policy - GO MS 2 (2017).PDF',137564,'application/pdf',1,'ACTIVE','2026-05-20 11:04:35','2026-05-20 11:04:35'),(3,'APCSOC (Onboarding)Security Monitoring - GO MS 6 (2019)',NULL,'uploads/downloads/1779255328602_APCSOC__Onboarding_Security_Monitoring_-_GO_MS_6__2019_.PDF','APCSOC (Onboarding)Security Monitoring - GO MS 6 (2019).PDF',97176,'application/pdf',1,'ACTIVE','2026-05-20 11:05:28','2026-05-20 11:05:28'),(4,'APTS Cyber Security Service Tariffs - GO MS 11 (2024)',NULL,'uploads/downloads/1779255343203_APTS_Cyber_Security_Service_Tariffs_-_GO_MS_11__2024_.pdf','APTS Cyber Security Service Tariffs - GO MS 11 (2024).pdf',544279,'application/pdf',1,'ACTIVE','2026-05-20 11:05:43','2026-05-20 11:05:43'),(5,'Cyber Security Assurance Services - GO MS 4 (2019)',NULL,'uploads/downloads/1779255355503_Cyber_Security_Assurance_Services_-_GO_MS_4__2019_.PDF','Cyber Security Assurance Services - GO MS 4 (2019).PDF',108775,'application/pdf',1,'ACTIVE','2026-05-20 11:05:55','2026-05-20 11:05:55');
 /*!40000 ALTER TABLE `downloads` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -189,14 +191,14 @@ DROP TABLE IF EXISTS `profiles`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `profiles` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `designation` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `image_path` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `original_filename` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `designation` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `image_path` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `original_filename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `file_size` int DEFAULT NULL,
-  `mime_type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mime_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `uploaded_by` int DEFAULT NULL,
-  `status` enum('ACTIVE','INACTIVE','DELETED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
+  `status` enum('ACTIVE','INACTIVE','DELETED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -267,7 +269,7 @@ CREATE TABLE `refresh_tokens` (
   KEY `idx_refresh_tokens_token` (`token`),
   KEY `idx_refresh_tokens_user_id` (`user_id`),
   CONSTRAINT `refresh_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -276,6 +278,7 @@ CREATE TABLE `refresh_tokens` (
 
 LOCK TABLES `refresh_tokens` WRITE;
 /*!40000 ALTER TABLE `refresh_tokens` DISABLE KEYS */;
+INSERT INTO `refresh_tokens` VALUES (1,1,'afa3393a5918dfc8f0138ae6a05e215af5f31d6fe18c122511a0f7bf57de010a','2026-05-27 11:03:23','2026-05-20 11:03:23');
 /*!40000 ALTER TABLE `refresh_tokens` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -377,7 +380,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'admin','admin@gov.in','$2a$12$Z35ccaeF4hl8fSVBmOpV3.GCG1KVIefpDhbEjAJt.3SSdI66a5HFS',1,'ACTIVE',NULL,'2026-05-18 12:35:20','2026-05-18 12:35:20');
+INSERT INTO `users` VALUES (1,'admin','admin@gov.in','$2a$12$Z35ccaeF4hl8fSVBmOpV3.GCG1KVIefpDhbEjAJt.3SSdI66a5HFS',2,'ACTIVE','2026-05-20 11:03:22','2026-05-18 12:35:20','2026-05-20 11:03:22');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -398,4 +401,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-05-18 16:17:16
+-- Dump completed on 2026-05-20 11:07:37
