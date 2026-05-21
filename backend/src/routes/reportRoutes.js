@@ -18,9 +18,9 @@ const { requireCaptcha } = require('../middleware/captchaMiddleware');
 router.get('/categories', reportController.getCategories);
 router.post(
   '/',
-  requireCaptcha,
   uploadMultipleFiles,
   handleMulterError,
+  requireCaptcha,
   submitIncidentValidation,
   reportController.submitIncident
 );
