@@ -23,8 +23,8 @@ class ReportRepository {
 
   async createIncident({ name, email, incident_category_id, description_of_incident, tracking_id }) {
     const [result] = await pool.query(
-      `INSERT INTO reported_incidents (name, email, incident_category_id, description_of_incident, tracking_id)
-       VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO reported_incidents (name, email, incident_category_id, description_of_incident, tracking_id, incident_status)
+       VALUES (?, ?, ?, ?, ?, 'PENDING')`,
       [name, email, incident_category_id, description_of_incident, tracking_id]
     );
     return { id: result.insertId, tracking_id };

@@ -41,7 +41,7 @@ CREATE TABLE `audit_logs` (
   KEY `idx_audit_logs_action` (`action`),
   KEY `idx_audit_logs_created_at` (`created_at`),
   CONSTRAINT `audit_logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -50,7 +50,7 @@ CREATE TABLE `audit_logs` (
 
 LOCK TABLES `audit_logs` WRITE;
 /*!40000 ALTER TABLE `audit_logs` DISABLE KEYS */;
-INSERT INTO `audit_logs` VALUES (1,1,'AUTH','LOGIN_SUCCESS','users',1,'UPDATE users SET session_version = session_version + 1 WHERE id = ?; DELETE FROM refresh_tokens WHERE user_id = ?','Successful login for admin (admin@gov.in)','127.0.0.1','2026-05-20 11:03:23'),(2,1,'DOWNLOADS','UPLOAD','downloads',1,'INSERT INTO downloads ...','Uploaded download: AP Cyber Security Framework Guidelines - GO MS 18 (2019).pdf (2291337 bytes)','127.0.0.1','2026-05-20 11:04:20'),(3,1,'DOWNLOADS','UPLOAD','downloads',2,'INSERT INTO downloads ...','Uploaded download: AP Cyber Security Policy - GO MS 2 (2017).PDF (137564 bytes)','127.0.0.1','2026-05-20 11:04:36'),(4,1,'DOWNLOADS','UPLOAD','downloads',3,'INSERT INTO downloads ...','Uploaded download: APCSOC (Onboarding)Security Monitoring - GO MS 6 (2019).PDF (97176 bytes)','127.0.0.1','2026-05-20 11:05:28'),(5,1,'DOWNLOADS','UPLOAD','downloads',4,'INSERT INTO downloads ...','Uploaded download: APTS Cyber Security Service Tariffs - GO MS 11 (2024).pdf (544279 bytes)','127.0.0.1','2026-05-20 11:05:43'),(6,1,'DOWNLOADS','UPLOAD','downloads',5,'INSERT INTO downloads ...','Uploaded download: Cyber Security Assurance Services - GO MS 4 (2019).PDF (108775 bytes)','127.0.0.1','2026-05-20 11:05:55');
+INSERT INTO `audit_logs` VALUES (1,1,'AUTH','LOGIN_SUCCESS','users',1,'UPDATE users SET session_version = session_version + 1 WHERE id = ?; DELETE FROM refresh_tokens WHERE user_id = ?','Successful login for admin (admin@gov.in)','127.0.0.1','2026-05-20 11:03:23'),(2,1,'DOWNLOADS','UPLOAD','downloads',1,'INSERT INTO downloads ...','Uploaded download: AP Cyber Security Framework Guidelines - GO MS 18 (2019).pdf (2291337 bytes)','127.0.0.1','2026-05-20 11:04:20'),(3,1,'DOWNLOADS','UPLOAD','downloads',2,'INSERT INTO downloads ...','Uploaded download: AP Cyber Security Policy - GO MS 2 (2017).PDF (137564 bytes)','127.0.0.1','2026-05-20 11:04:36'),(4,1,'DOWNLOADS','UPLOAD','downloads',3,'INSERT INTO downloads ...','Uploaded download: APCSOC (Onboarding)Security Monitoring - GO MS 6 (2019).PDF (97176 bytes)','127.0.0.1','2026-05-20 11:05:28'),(5,1,'DOWNLOADS','UPLOAD','downloads',4,'INSERT INTO downloads ...','Uploaded download: APTS Cyber Security Service Tariffs - GO MS 11 (2024).pdf (544279 bytes)','127.0.0.1','2026-05-20 11:05:43'),(6,1,'DOWNLOADS','UPLOAD','downloads',5,'INSERT INTO downloads ...','Uploaded download: Cyber Security Assurance Services - GO MS 4 (2019).PDF (108775 bytes)','127.0.0.1','2026-05-20 11:05:55'),(7,1,'AUTH','LOGOUT','users',1,'UPDATE users SET session_version = session_version + 1 WHERE id = ?','User logged out - session version incremented','127.0.0.1','2026-05-21 16:34:37'),(8,1,'AUTH','LOGIN_SUCCESS','users',1,'UPDATE users SET session_version = session_version + 1 WHERE id = ?; DELETE FROM refresh_tokens WHERE user_id = ?','Successful login for admin (admin@gov.in)','127.0.0.1','2026-05-21 16:34:53'),(9,1,'AUTH','LOGOUT','users',1,'UPDATE users SET session_version = session_version + 1 WHERE id = ?','User logged out - session version incremented','127.0.0.1','2026-05-21 16:35:13');
 /*!40000 ALTER TABLE `audit_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -269,7 +269,7 @@ CREATE TABLE `refresh_tokens` (
   KEY `idx_refresh_tokens_token` (`token`),
   KEY `idx_refresh_tokens_user_id` (`user_id`),
   CONSTRAINT `refresh_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -278,7 +278,6 @@ CREATE TABLE `refresh_tokens` (
 
 LOCK TABLES `refresh_tokens` WRITE;
 /*!40000 ALTER TABLE `refresh_tokens` DISABLE KEYS */;
-INSERT INTO `refresh_tokens` VALUES (1,1,'afa3393a5918dfc8f0138ae6a05e215af5f31d6fe18c122511a0f7bf57de010a','2026-05-27 11:03:23','2026-05-20 11:03:23');
 /*!40000 ALTER TABLE `refresh_tokens` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -327,7 +326,7 @@ CREATE TABLE `reported_incidents` (
   `incident_category_id` int NOT NULL,
   `description_of_incident` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `tracking_id` varchar(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `incident_status` enum('PENDING','IN_REVIEW','RESOLVED','DISMISSED') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `incident_status` enum('PENDING','IN_REVIEW','RESOLVED','DISMISSED') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'PENDING',
   `status` enum('ACTIVE','INACTIVE','DELETED') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -380,7 +379,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'admin','admin@gov.in','$2a$12$Z35ccaeF4hl8fSVBmOpV3.GCG1KVIefpDhbEjAJt.3SSdI66a5HFS',2,'ACTIVE','2026-05-20 11:03:22','2026-05-18 12:35:20','2026-05-20 11:03:22');
+INSERT INTO `users` VALUES (1,'admin','admin@gov.in','$2a$12$Z35ccaeF4hl8fSVBmOpV3.GCG1KVIefpDhbEjAJt.3SSdI66a5HFS',5,'ACTIVE','2026-05-21 16:34:52','2026-05-18 12:35:20','2026-05-21 16:35:12');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -401,4 +400,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-05-20 14:57:31
+-- Dump completed on 2026-05-21 16:35:39

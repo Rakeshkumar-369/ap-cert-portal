@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
@@ -6,66 +7,95 @@ import ReportModal from './components/ui/ReportModal';
 import LeadershipHeader from './components/layout/LeadershipHeader';
 import ImageCarousel from './components/layout/ImageCarousel';
 
-import AdminLogin from './pages/AdminLogin';
-import AdminDashboard from './pages/AdminDashboard';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
-import { PAGE_MAP } from './data/pageConfig';
+import Home from './pages/Home';
+import About from './pages/About';
+import Mandate from './pages/Mandate';
+import SecurityTips from './pages/SecurityTips';
+import FAQ from './pages/FAQ';
+import Contact from './pages/Contact';
+import Downloads from './pages/Downloads';
+import Guidelines from './pages/Guidelines';
+import News from './pages/News';
+import Vulnerability from './pages/Vulnerability';
+import Committee from './pages/Committee';
+import Training from './pages/Training';
+import Publications from './pages/Publications';
 
-function App() {
-  const [currentPage, setCurrentPage] = useState('home');
+function PublicLayout() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Admin Login State
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // Handle Admin View
-  if (currentPage === 'admin') {
-    return !isLoggedIn ? (
-      <AdminLogin onLogin={() => setIsLoggedIn(true)} />
-    ) : (
-      <AdminDashboard
-        onLogout={() => {
-          setIsLoggedIn(false);
-          setCurrentPage('home');
-        }}
-      />
-    );
-  }
-
-  // Dynamically select page component
-  const ActivePage = PAGE_MAP[currentPage] || PAGE_MAP['home'];
+  const location = useLocation();
 
   return (
     <div className="min-h-screen bg-[#F1F5F9] font-sans text-slate-900 flex flex-col">
 
-      {/* Navbar */}
-      <Navbar
-        setPage={setCurrentPage}
-        onReportClick={() => setIsModalOpen(true)}
-      />
+      <Navbar onReportClick={() => setIsModalOpen(true)} />
 
-      {/* Leadership Section */}
       <LeadershipHeader />
 
-      {/* Carousel Section */}
       <div className="space-y-4">
-        {currentPage === 'home' && <ImageCarousel />}
+        {location.pathname === '/' && <ImageCarousel />}
       </div>
 
-      {/* Main Content */}
       <main className="flex-grow min-h-[70vh] pb-20">
-        <ActivePage />
+        <Routes>
+          <Route index element={<Home />} />
+          <Route path="about" element={<About />} />
+          <Route path="mandate" element={<Mandate />} />
+          <Route path="tips" element={<SecurityTips />} />
+          <Route path="security-tips" element={<SecurityTips />} />
+          <Route path="faq" element={<FAQ />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="downloads" element={<Downloads />} />
+          <Route path="guidelines" element={<Guidelines />} />
+          <Route path="news" element={<News />} />
+          <Route path="vulnerability" element={<Vulnerability />} />
+          <Route path="vulnerability-reporting" element={<Vulnerability />} />
+          <Route path="advisories" element={<SecurityTips />} />
+          <Route path="committee" element={<Committee />} />
+          <Route path="training" element={<Training />} />
+          <Route path="reports" element={<Publications />} />
+          <Route path="publications" element={<Publications />} />
+        </Routes>
       </main>
 
-      {/* Footer */}
       <Footer />
 
-      {/* Report Modal */}
       <ReportModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
     </div>
+  );
+}
+
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return !!localStorage.getItem('token');
+  });
+
+  return (
+    <Routes>
+      <Route
+        path="/admin"
+        element={
+          !isLoggedIn ? (
+            <AdminLogin onLogin={() => {
+                setIsLoggedIn(true);
+              }} />
+          ) : (
+            <AdminDashboard
+              onLogout={() => {
+                setIsLoggedIn(false);
+              }}
+            />
+          )
+        }
+      />
+      <Route path="*" element={<PublicLayout />} />
+    </Routes>
   );
 }
 

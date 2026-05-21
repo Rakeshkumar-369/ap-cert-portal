@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Shield, Mail, Lock, Eye, EyeOff, RefreshCw } from 'lucide-react';
-import { authAPI } from '../services/api';
+import { Shield, Mail, Lock, Eye, EyeOff, RefreshCw, AlertCircle } from 'lucide-react';
+import { authAPI } from '../../services/api';
 
 const AdminLogin = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -64,10 +64,16 @@ const AdminLogin = ({ onLogin }) => {
         onLogin({ success: true, token, user });
       }
     } catch (err) {
-      const message =
-        err.message === 'Failed to fetch'
-          ? 'Network error. Please check your connection.'
-          : err.message || 'Login failed. Please check your credentials.';
+      let message = err.message || 'Login failed. Please check your credentials.';
+
+      // Show captcha-specific error messages clearly
+      if (err.status === 400) {
+        if (message === 'Login failed. Please check your credentials.' && err.message) {
+          message = err.message;
+        }
+      } else if (message === 'Failed to fetch') {
+        message = 'Network error. Please check your connection.';
+      }
 
       setError(message);
       fetchCaptcha(); // refresh captcha on failed attempt
@@ -77,42 +83,43 @@ const AdminLogin = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A162F] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F1F5F9] flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-ap-gold/10 mb-4">
-            <Shield className="w-10 h-10 text-ap-gold" />
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-ap-navy/10 mb-4">
+            <Shield className="w-10 h-10 text-ap-navy" />
           </div>
-          <h1 className="text-3xl font-black uppercase tracking-tight text-white">
+          <h1 className="text-3xl font-black uppercase tracking-tight text-ap-navy">
             Admin Access
           </h1>
-          <p className="text-ap-lavender text-xs font-bold uppercase tracking-[0.3em] mt-2">
+          <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.3em] mt-2">
             AP-CERT Control Panel
           </p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-ap-navy/50 backdrop-blur-sm rounded-2xl border border-ap-purple/20 p-8">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-lg p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-                <p className="text-red-400 text-sm text-center">{error}</p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+                <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
+                <p className="text-red-600 text-sm font-semibold">{error}</p>
               </div>
             )}
 
             {/* Email Field */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-ap-lavender mb-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[#0A162F] border border-ap-purple/30 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-ap-gold transition-colors"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-ap-glow transition-colors"
                   placeholder="Enter your email"
                   required
                 />
@@ -121,23 +128,23 @@ const AdminLogin = ({ onLogin }) => {
 
             {/* Password Field */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-ap-lavender mb-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#0A162F] border border-ap-purple/30 rounded-lg pl-10 pr-12 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-ap-gold transition-colors"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-12 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-ap-glow transition-colors"
                   placeholder="Enter your password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-ap-gold transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-ap-navy transition-colors"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -146,11 +153,11 @@ const AdminLogin = ({ onLogin }) => {
 
             {/* Captcha */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-ap-lavender mb-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
                 Captcha
               </label>
               <div className="flex items-center gap-3 mb-3">
-                <div className="bg-white rounded-lg p-1 flex-1">
+                <div className="bg-slate-50 rounded-lg p-1 flex-1 border border-slate-200">
                   {captchaLoading ? (
                     <div className="h-[50px] flex items-center justify-center text-gray-400 text-sm">
                       Loading...
@@ -162,7 +169,7 @@ const AdminLogin = ({ onLogin }) => {
                 <button
                   type="button"
                   onClick={fetchCaptcha}
-                  className="p-2 text-ap-lavender hover:text-ap-gold transition-colors"
+                  className="p-2 text-slate-400 hover:text-ap-navy transition-colors"
                   title="Refresh captcha"
                 >
                   <RefreshCw size={20} className={captchaLoading ? 'animate-spin' : ''} />
@@ -172,7 +179,7 @@ const AdminLogin = ({ onLogin }) => {
                 type="text"
                 value={captchaText}
                 onChange={(e) => setCaptchaText(e.target.value)}
-                className="w-full bg-[#0A162F] border border-ap-purple/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-ap-gold transition-colors"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-ap-glow transition-colors"
                 placeholder="Enter captcha text"
                 required
               />
@@ -182,11 +189,11 @@ const AdminLogin = ({ onLogin }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-ap-gold hover:bg-ap-gold/80 text-ap-navy py-3 rounded-lg font-bold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-ap-navy hover:bg-ap-navy/80 text-white py-3 rounded-lg font-bold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
             >
               {loading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-ap-navy border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   Authenticating...
                 </>
               ) : (

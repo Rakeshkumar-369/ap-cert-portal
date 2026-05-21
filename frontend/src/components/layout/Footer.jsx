@@ -73,7 +73,7 @@ const Footer = () => {
         <div className="mt-10 pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <img
-              src="/ap-cert-portal/APTS.png"
+              src={`${import.meta.env.BASE_URL}APTS.png`}
               alt="APTS"
               className="w-6 h-6 object-contain rounded-full"
             />

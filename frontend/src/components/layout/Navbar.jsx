@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   
   Menu, 
@@ -12,7 +13,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { navLinks } from '../../data/navLinks';
 
-const Navbar = ({ setPage, onReportClick }) => {
+const Navbar = ({ onReportClick }) => { 
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -38,32 +40,36 @@ const Navbar = ({ setPage, onReportClick }) => {
     if (route === 'report an incident' || route === 'report incident') {
       onReportClick();
     } else if (route === 'training') {
-      setPage('training');
+      navigate('/training');
     } else if (route === 'contact' || route === 'contact us') {
-      setPage('contact');
+      navigate('/contact');
     } else if (route === 'about apcert' || route === 'who we are') {
-      setPage('about');
+      navigate('/about');
     } else if (route.includes('mandate')) {
-      setPage('mandate');
+      navigate('/mandate');
     } else if (route.includes('tips') || route === 'security tips') {
-      setPage('tips');
+      navigate('/tips');
     } else if (route === 'downloads') {
-      setPage('downloads');
+      navigate('/downloads');
     } else if (route === 'publications' || route === 'reports') {
-      setPage('reports');
+      navigate('/reports');
     } else if (route === 'home') {
-      setPage('home');
+      navigate('/');
     } else if (route === 'vulnerability disclosure') {
-      setPage('vulnerability');
+      navigate('/vulnerability');
     } else if (route === "who's who" || route === 'committee') {
-      setPage('committee');
+      navigate('/committee');
     } else if (route === 'news & updates' || route === 'news') {
-      setPage('news');
+      navigate('/news');
+    } else if (route === 'guidelines & sops' || route === 'guidelines') {
+      navigate('/guidelines');
+    } else if (route === 'advisories') {
+      navigate('/advisories');
     }
     else if (route === 'admin') {
-      setPage('admin');
+      navigate('/admin');
     } else {
-      setPage(route.replace(/\s+/g, ''));
+      navigate('/' + route.replace(/\s+/g, ''));
     }
     setIsMobileMenuOpen(false);
     setActiveDropdown(null);

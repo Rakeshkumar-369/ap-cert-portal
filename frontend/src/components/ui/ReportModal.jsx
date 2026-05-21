@@ -137,7 +137,13 @@ const ReportModal = ({ isOpen, onClose }) => {
       setTrackingId(tid);
       setStep('success');
     } catch (err) {
-      setError(err.message || 'Failed to submit report. Please try again.');
+      // Show captcha 400 errors clearly
+      const message = err.message || 'Failed to submit report. Please try again.';
+      if (err.status === 400) {
+        setError('Captcha error: ' + message);
+      } else {
+        setError(message);
+      }
       fetchCaptcha();
     } finally {
       setSubmitting(false);
@@ -164,7 +170,13 @@ const ReportModal = ({ isOpen, onClose }) => {
       const res = await reportsAPI.checkStatus(trackInput.trim(), trackCaptcha.id, trackCaptchaText);
       setTrackResult(res.data || res);
     } catch (err) {
-      setTrackError(err.message || 'Tracking ID not found.');
+      // Show captcha 400 errors clearly
+      const message = err.message || 'Tracking ID not found.';
+      if (err.status === 400) {
+        setTrackError('Captcha error: ' + message);
+      } else {
+        setTrackError(message);
+      }
       fetchTrackCaptcha();
     } finally {
       setTrackingLoading(false);
@@ -311,12 +323,13 @@ const ReportModal = ({ isOpen, onClose }) => {
                 <div className="bg-slate-50 rounded-2xl p-6 space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Status</span>
-                    <span className={`text-xs font-black uppercase px-3 py-1 rounded-full ${
-                      trackResult.status === 'resolved' ? 'bg-green-100 text-green-700' :
-                      trackResult.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-blue-100 text-blue-700'
+                    <span className={`text-xs font-black uppercase px-3 py-1 rounded-full $                  trackResult.incident_status === 'RESOLVED' ? 'bg-green-100 text-green-700' :
+                      trackResult.incident_status === 'IN_REVIEW' ? 'bg-yellow-100 text-yellow-700' :
+                      trackResult.incident_status === 'DISMISSED' ? 'bg-red-100 text-red-700' :
+                      trackResult.incident_status === 'PENDING' ? 'bg-blue-100 text-blue-700' :
+                      'bg-slate-100 text-slate-700'
                     }`}>
-                      {trackResult.status || 'Submitted'}
+                      {trackResult.incident_status || 'Submitted'}
                     </span>
                   </div>
                   {trackResult.description && (
