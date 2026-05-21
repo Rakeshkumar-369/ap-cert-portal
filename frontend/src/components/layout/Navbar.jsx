@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Shield, 
   Menu, 
@@ -82,16 +82,11 @@ const Navbar = ({ setPage, onReportClick }) => {
 
   return (
     <>
-      {/* Main Header Container: 
-          The Top Branding is relative (scrolls away).
-          The Navigation is sticky (stays at top).
-      */}
       <header className="w-full z-[100] font-sans">
         
-        {/* TOP BRANDING AREA - This will scroll up and disappear */}
+        {/* TOP BRANDING AREA */}
         <div className="w-full bg-white border-b border-slate-100 relative">
 
-          {/* Invisible Admin Login Trigger */}
           <button
             onClick={() => handleNavigation('admin')}
             className="absolute top-2 left-2 w-10 h-10 opacity-0 z-[200] cursor-pointer"
@@ -103,9 +98,28 @@ const Navbar = ({ setPage, onReportClick }) => {
               className="flex items-center gap-4 cursor-pointer group" 
               onClick={() => handleNavigation('home')}
             >
-              <div className="bg-white rounded-xl p-2 shadow-sm border border-slate-100 group-hover:border-[#FFCC00] transition-all">
-                <Shield className="text-[#003366] w-10 h-10 md:w-12 md:h-12" />
-              </div>
+            <div className="relative w-10 h-10 md:w-12 md:h-12 group-hover:scale-105 transition-transform">
+  <svg
+    viewBox="0 0 24 24"
+    className="absolute inset-0 w-full h-full"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <clipPath id="shield-clip">
+        <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z" />
+      </clipPath>
+    </defs>
+    <image
+      href={`${import.meta.env.BASE_URL}APCSOC.png`}
+      x="0"
+      y="0"
+      width="24"
+      height="24"
+      clipPath="url(#shield-clip)"
+      preserveAspectRatio="xMidYMid slice"
+    />
+  </svg>
+</div>
               <div className="flex flex-col">
                 <h1 className="text-xl md:text-2xl font-black text-[#003366] leading-none tracking-tight">
                   AP-CERT
@@ -123,10 +137,13 @@ const Navbar = ({ setPage, onReportClick }) => {
                   <Globe size={10} /> State Infrastructure Active
                 </span>
               </div>
-              <img src={`${import.meta.env.BASE_URL}images/logo.jpeg`} className="h-14 object-contain" />
+              <img
+                src={`${import.meta.env.BASE_URL}logo.png`}
+                alt="AP Logo"
+                className="h-14 object-contain"
+              />
             </div>
 
-            {/* Mobile Toggle inside Branding Area */}
             <button 
               className="lg:hidden p-2 text-[#003366]"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -136,7 +153,7 @@ const Navbar = ({ setPage, onReportClick }) => {
           </div>
         </div>
 
-        {/* PRIMARY STICKY NAV - This locks to the top of the screen */}
+        {/* PRIMARY STICKY NAV */}
         <nav className="w-full bg-[#003366] sticky top-0 shadow-xl hidden lg:block z-[110]">
           <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-20">
             
@@ -210,11 +227,6 @@ const Navbar = ({ setPage, onReportClick }) => {
         </nav>
       </header>
 
-      {/* VIP Section Note: 
-          In your parent component, ensure the VIP images are rendered AFTER the <Navbar /> 
-          component so they naturally appear below it and scroll up behind/underneath the sticky nav.
-      */}
-
       {/* SCROLL TO TOP */}
       <AnimatePresence>
         {showScrollTop && (
@@ -241,7 +253,12 @@ const Navbar = ({ setPage, onReportClick }) => {
             className="fixed inset-0 bg-[#003366] z-[300] lg:hidden flex flex-col p-8"
           >
             <div className="flex justify-between items-center mb-10">
-              <Shield className="text-[#FFCC00] w-10 h-10" />
+              {/* Replaced Shield icon with logo image - same dimensions */}
+              <img
+                src={`${import.meta.env.BASE_URL}logo.png`}
+                alt="Logo"
+                className="w-10 h-10 object-contain"
+              />
               <button onClick={() => setIsMobileMenuOpen(false)} className="text-white">
                 <X size={32} />
               </button>

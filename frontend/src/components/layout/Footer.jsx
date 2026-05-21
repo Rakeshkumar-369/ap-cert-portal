@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Shield, ExternalLink } from 'lucide-react';
 
@@ -7,12 +6,11 @@ const Footer = () => {
 
   return (
     <footer className="bg-slate-900 text-slate-300 border-t border-slate-800">
-      {/* Accent horizontal line with the requested color (0 212 255) */}
       <div className="h-1 w-full" style={{ backgroundColor: 'rgb(0, 212, 255)' }}></div>
 
       <div className="max-w-7xl mx-auto px-4 pt-8 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          
+
           {/* Brand & Mission */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-white">
@@ -20,7 +18,7 @@ const Footer = () => {
               <span className="font-bold text-xl tracking-tight">AP-CERT</span>
             </div>
             <p className="text-sm leading-relaxed text-slate-400">
-              Andhra Pradesh Computer Emergency Response Team is the nodal agency for 
+              Andhra Pradesh Computer Emergency Response Team is the nodal agency for
               responding to computer security incidents as and when they occur in the state.
             </p>
           </div>
@@ -68,18 +66,26 @@ const Footer = () => {
               </div>
             </div>
           </div>
+
         </div>
 
+        {/* Bottom copyright row */}
         <div className="mt-10 pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-slate-500">
-            © {currentYear} AP-CERT. All rights reserved. Government of Andhra Pradesh.
-          </p>
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            <img
+              src="/ap-cert-portal/APTS.png"
+              alt="APTS"
+              className="w-6 h-6 object-contain rounded-full"
+            />
+            <p>© {currentYear} AP-CERT. All rights reserved. Government of Andhra Pradesh.</p>
+          </div>
           <div className="flex gap-6 text-xs text-slate-500">
             <Link to="/privacy" className="hover:text-slate-300">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-slate-300">Terms of Service</Link>
             <Link to="/hyperlink-policy" className="hover:text-slate-300">Hyperlink Policy</Link>
           </div>
         </div>
+
       </div>
     </footer>
   );
