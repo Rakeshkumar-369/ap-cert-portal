@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { Shield, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { authAPI } from '../services/api'; // adjust path
+import { useState, useEffect } from 'react';
+import { Shield, Mail, Lock, Eye, EyeOff, RefreshCw } from 'lucide-react';
+import { authAPI } from '../services/api';
 
 const AdminLogin = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -8,51 +8,73 @@ const AdminLogin = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [captcha, setCaptcha] = useState(null); // { id, svg }
+  const [captchaText, setCaptchaText] = useState('');
+  const [captchaLoading, setCaptchaLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
-  setLoading(true);
-
-  if (!email || !password) {
-    setError('Please enter both email and password');
-    setLoading(false);
-    return;
-  }
-
+ const fetchCaptcha = async () => {
+  setCaptchaLoading(true);
   try {
-    const res = await authAPI.login(email, password);
-
-    // Extract token and user from API response
-    const token = res.data[0].accessToken;
-    const user = res.data[0].user;
-
-    // Store in localStorage
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
-
-    // Notify parent if provided
-    if (onLogin) {
-      onLogin({
-        success: true,
-        token,
-        user,
-      });
-    }
-
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/captcha`);
+    const data = await res.json();
+    setCaptcha({ id: data.data.id, svg: data.data.svg });
+    setCaptchaText('');
   } catch (err) {
-    const message =
-      err.message === 'Failed to fetch'
-        ? 'Network error. Please check your connection.'
-        : err.message || 'Login failed. Please check your credentials.';
-
-    setError(message);
-    console.error('Login error:', err);
-
+    console.error('Captcha fetch error:', err);
   } finally {
-    setLoading(false);
+    setCaptchaLoading(false);
   }
 };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchCaptcha();
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      setLoading(false);
+      return;
+    }
+
+    if (!captchaText || !captcha?.id) {
+      setError('Please enter the captcha');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await authAPI.login(email, password, captcha.id, captchaText);
+
+      const token = res.data[0].accessToken;
+      const user = res.data[0].user;
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      if (onLogin) {
+        onLogin({ success: true, token, user });
+      }
+    } catch (err) {
+      const message =
+        err.message === 'Failed to fetch'
+          ? 'Network error. Please check your connection.'
+          : err.message || 'Login failed. Please check your credentials.';
+
+      setError(message);
+      fetchCaptcha(); // refresh captcha on failed attempt
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0A162F] flex items-center justify-center p-4">
@@ -85,7 +107,7 @@ const AdminLogin = ({ onLogin }) => {
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                 <input
                   type="email"
                   value={email}
@@ -103,7 +125,7 @@ const AdminLogin = ({ onLogin }) => {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
@@ -115,11 +137,45 @@ const AdminLogin = ({ onLogin }) => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-ap-gold transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-ap-gold transition-colors"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+            </div>
+
+            {/* Captcha */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-ap-lavender mb-2">
+                Captcha
+              </label>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="bg-white rounded-lg p-1 flex-1">
+                  {captchaLoading ? (
+                    <div className="h-[50px] flex items-center justify-center text-gray-400 text-sm">
+                      Loading...
+                    </div>
+                  ) : captcha ? (
+                    <div dangerouslySetInnerHTML={{ __html: captcha.svg }} />
+                  ) : null}
+                </div>
+                <button
+                  type="button"
+                  onClick={fetchCaptcha}
+                  className="p-2 text-ap-lavender hover:text-ap-gold transition-colors"
+                  title="Refresh captcha"
+                >
+                  <RefreshCw size={20} className={captchaLoading ? 'animate-spin' : ''} />
+                </button>
+              </div>
+              <input
+                type="text"
+                value={captchaText}
+                onChange={(e) => setCaptchaText(e.target.value)}
+                className="w-full bg-[#0A162F] border border-ap-purple/30 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-ap-gold transition-colors"
+                placeholder="Enter captcha text"
+                required
+              />
             </div>
 
             {/* Submit Button */}

@@ -21,7 +21,9 @@ async function request(endpoint, options = {}) {
     try {
       const json = await res.json();
       err.message = json.message || err.message;
-    } catch {}
+    } catch {
+      // ignore JSON parse errors and keep original error message
+    }
     throw err;
   }
   // Handle file downloads
@@ -48,11 +50,11 @@ function qs(params) {
 // Auth API
 // ──────────────────────────────────────────────
 export const authAPI = {
-  login: (email, password) =>
-    request('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    }),
+ login: (email, password, captchaId, captchaText) =>
+  request('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password, captchaId, captchaText }),
+  }),
 
   refresh: () =>
     request('/api/auth/refresh', { method: 'POST' }),
@@ -236,11 +238,11 @@ export const reportsAPI = {
       credentials: 'include',
     }).then(handleResponse),
 
-  checkStatus: (trackingId) =>
-    request('/api/reports/status', {
-      method: 'POST',
-      body: JSON.stringify({ tracking_id: trackingId }),
-    }),
+ checkStatus: (trackingId, captchaId, captchaText) =>
+  request('/api/reports/status', {
+    method: 'POST',
+    body: JSON.stringify({ tracking_id: trackingId, captchaId, captchaText }),
+  }),
 
   listAll: (token, params = {}) =>
     request(`/api/reports/admin${qs(params)}`, {
@@ -277,7 +279,9 @@ export const reportsAPI = {
         try {
           const json = await res.json();
           err.message = json.message || err.message;
-        } catch {}
+        } catch {
+          // ignore parsing errors
+        }
         throw err;
       }
       return res;
@@ -294,7 +298,9 @@ async function handleResponse(res) {
     try {
       const json = await res.json();
       err.message = json.message || err.message;
-    } catch {}
+    } catch {
+      // ignore parsing errors
+    }
     throw err;
   }
   return res.json();

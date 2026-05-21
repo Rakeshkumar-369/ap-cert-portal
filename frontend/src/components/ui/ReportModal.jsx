@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Send, User, Mail, FileUp, ShieldAlert, AlertCircle,
-  Loader2, CheckCircle, Search
+  Loader2, CheckCircle, Search, RefreshCw
 } from 'lucide-react';
 import { reportsAPI } from '../../services/api';
 
 const ReportModal = ({ isOpen, onClose }) => {
-  const [step, setStep] = useState('form'); // 'form' | 'success' | 'track'
+  const [step, setStep] = useState('form');
   const [categories, setCategories] = useState([]);
   const [loadingCat, setLoadingCat] = useState(true);
 
@@ -27,6 +27,44 @@ const ReportModal = ({ isOpen, onClose }) => {
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [trackError, setTrackError] = useState('');
 
+  // Report captcha state
+  const [captcha, setCaptcha] = useState(null);
+  const [captchaText, setCaptchaText] = useState('');
+  const [captchaLoading, setCaptchaLoading] = useState(false);
+
+  // Track captcha state
+  const [trackCaptcha, setTrackCaptcha] = useState(null);
+  const [trackCaptchaText, setTrackCaptchaText] = useState('');
+  const [trackCaptchaLoading, setTrackCaptchaLoading] = useState(false);
+
+  const fetchCaptcha = async () => {
+    setCaptchaLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/captcha`);
+      const data = await res.json();
+      setCaptcha({ id: data.data.id, svg: data.data.svg });
+      setCaptchaText('');
+    } catch (err) {
+      console.error('Captcha fetch error:', err);
+    } finally {
+      setCaptchaLoading(false);
+    }
+  };
+
+  const fetchTrackCaptcha = async () => {
+    setTrackCaptchaLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/captcha`);
+      const data = await res.json();
+      setTrackCaptcha({ id: data.data.id, svg: data.data.svg });
+      setTrackCaptchaText('');
+    } catch (err) {
+      console.error('Track captcha fetch error:', err);
+    } finally {
+      setTrackCaptchaLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
       setStep('form');
@@ -39,6 +77,10 @@ const ReportModal = ({ isOpen, onClose }) => {
       setTrackInput('');
       setTrackResult(null);
       setTrackError('');
+      setCaptcha(null);
+      setCaptchaText('');
+      setTrackCaptcha(null);
+      setTrackCaptchaText('');
 
       const fetchCategories = async () => {
         setLoadingCat(true);
@@ -54,7 +96,10 @@ const ReportModal = ({ isOpen, onClose }) => {
           setLoadingCat(false);
         }
       };
+
       fetchCategories();
+      fetchCaptcha();
+      fetchTrackCaptcha();
     }
   }, [isOpen]);
 
@@ -65,10 +110,17 @@ const ReportModal = ({ isOpen, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
     if (!name || !email || !categoryId || !description) {
       setError('Please fill in all required fields.');
       return;
     }
+
+    if (!captchaText || !captcha?.id) {
+      setError('Please enter the captcha.');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const formData = new FormData();
@@ -76,15 +128,17 @@ const ReportModal = ({ isOpen, onClose }) => {
       formData.append('email', email);
       formData.append('incident_category_id', categoryId);
       formData.append('description_of_incident', description);
+      formData.append('captchaId', captcha.id);
+      formData.append('captchaText', captchaText);
       files.forEach((f) => formData.append('files', f));
 
       const res = await reportsAPI.submitIncident(formData);
       const tid = res.data?.[0]?.tracking_id || '';
       setTrackingId(tid);
-      alert(`Your report has been submitted. Tracking ID: ${tid}`);
       setStep('success');
     } catch (err) {
       setError(err.message || 'Failed to submit report. Please try again.');
+      fetchCaptcha();
     } finally {
       setSubmitting(false);
     }
@@ -94,16 +148,24 @@ const ReportModal = ({ isOpen, onClose }) => {
     e.preventDefault();
     setTrackError('');
     setTrackResult(null);
+
     if (!trackInput.trim()) {
       setTrackError('Please enter a tracking ID.');
       return;
     }
+
+    if (!trackCaptchaText || !trackCaptcha?.id) {
+      setTrackError('Please enter the captcha.');
+      return;
+    }
+
     setTrackingLoading(true);
     try {
-      const res = await reportsAPI.checkStatus(trackInput.trim());
+      const res = await reportsAPI.checkStatus(trackInput.trim(), trackCaptcha.id, trackCaptchaText);
       setTrackResult(res.data || res);
     } catch (err) {
       setTrackError(err.message || 'Tracking ID not found.');
+      fetchTrackCaptcha();
     } finally {
       setTrackingLoading(false);
     }
@@ -154,7 +216,7 @@ const ReportModal = ({ isOpen, onClose }) => {
               <Send size={14} className="inline mr-1" /> New Report
             </button>
             <button
-              onClick={() => setStep('track')}
+              onClick={() => { setStep('track'); fetchTrackCaptcha(); }}
               className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${step === 'track' ? 'bg-[#002B5B] text-white' : 'bg-slate-100 text-gray-500 hover:bg-slate-200'}`}
             >
               <Search size={14} className="inline mr-1" /> Track Report
@@ -196,6 +258,40 @@ const ReportModal = ({ isOpen, onClose }) => {
                     placeholder="Enter your tracking ID"
                   />
                 </div>
+
+                {/* Track Captcha */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase text-[#002B5B] tracking-widest">
+                    Captcha <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white border border-gray-200 rounded-xl p-1 flex-1">
+                      {trackCaptchaLoading ? (
+                        <div className="h-[50px] flex items-center justify-center text-gray-400 text-xs">
+                          <Loader2 size={14} className="animate-spin mr-1" /> Loading...
+                        </div>
+                      ) : trackCaptcha ? (
+                        <div dangerouslySetInnerHTML={{ __html: trackCaptcha.svg }} />
+                      ) : null}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={fetchTrackCaptcha}
+                      className="p-2 text-gray-400 hover:text-[#002B5B] transition-colors"
+                      title="Refresh captcha"
+                    >
+                      <RefreshCw size={18} className={trackCaptchaLoading ? 'animate-spin' : ''} />
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={trackCaptchaText}
+                    onChange={(e) => setTrackCaptchaText(e.target.value)}
+                    className="w-full bg-slate-50 border border-gray-200 rounded-xl p-3 focus:border-[#00D4FF] outline-none text-sm transition-all"
+                    placeholder="Enter captcha text"
+                  />
+                </div>
+
                 {trackError && (
                   <div className="flex items-center gap-2 text-red-500 text-xs font-bold">
                     <AlertCircle size={14} /> {trackError}
@@ -314,6 +410,40 @@ const ReportModal = ({ isOpen, onClose }) => {
                   rows={3}
                   className="w-full bg-slate-50 border border-gray-200 rounded-xl p-3 focus:border-[#00D4FF] outline-none text-sm transition-all resize-none"
                   placeholder="Describe the incident..."
+                />
+              </div>
+
+              {/* Captcha */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-[#002B5B] tracking-widest">
+                  Captcha <span className="text-red-500">*</span>
+                </label>
+                <div className="flex items-center gap-3">
+                  <div className="bg-white border border-gray-200 rounded-xl p-1 flex-1">
+                    {captchaLoading ? (
+                      <div className="h-[50px] flex items-center justify-center text-gray-400 text-xs">
+                        <Loader2 size={14} className="animate-spin mr-1" /> Loading...
+                      </div>
+                    ) : captcha ? (
+                      <div dangerouslySetInnerHTML={{ __html: captcha.svg }} />
+                    ) : null}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={fetchCaptcha}
+                    className="p-2 text-gray-400 hover:text-[#002B5B] transition-colors"
+                    title="Refresh captcha"
+                  >
+                    <RefreshCw size={18} className={captchaLoading ? 'animate-spin' : ''} />
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={captchaText}
+                  onChange={(e) => setCaptchaText(e.target.value)}
+                  className="w-full bg-slate-50 border border-gray-200 rounded-xl p-3 focus:border-[#00D4FF] outline-none text-sm transition-all"
+                  placeholder="Enter captcha text"
+                  required
                 />
               </div>
 

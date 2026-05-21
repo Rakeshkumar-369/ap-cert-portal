@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { motion } from 'framer-motion';
 import { ShieldCheck, Zap, AlertTriangle, Users, Activity, Target } from 'lucide-react';
 import Card from '../ui/Card';
