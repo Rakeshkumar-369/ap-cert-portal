@@ -60,3 +60,5 @@ coverage/
 # =========================
 # Optional backend ignores
 # =========================backend/captcha.db
+
+backend/captcha.db
