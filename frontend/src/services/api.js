@@ -267,10 +267,13 @@ export const reportsAPI = {
    * Download an attachment file. Returns a fetch Response (blob).
    * Caller should use response.blob() and trigger download.
    */
-  downloadAttachment: (trackingId, attachmentId) =>
-    fetch(`${API_BASE}/api/reports/attachments/download`, {
+  downloadAttachment: (trackingId, attachmentId, token) =>
+    fetch(`${API_BASE}/api/reports/admin/attachments/download`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({ tracking_id: trackingId, attachment_id: attachmentId }),
       credentials: 'include',
     }).then(async (res) => {

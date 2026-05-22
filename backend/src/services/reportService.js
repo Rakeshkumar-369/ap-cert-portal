@@ -77,21 +77,9 @@ class ReportService {
       throw new ApiError(404, 'Incident report not found');
     }
 
-    const attachments = await reportRepo.getAttachmentsByIncidentId(incident.id);
-
     return {
-      tracking_id: incident.tracking_id,
-      incident_id: incident.id,
-      category: incident.category_name,
       incident_status: incident.incident_status,
-      status: incident.status,
-      description: incident.description_of_incident,
-      submitted_at: incident.created_at,
-      attachments: attachments.map(a => ({
-        id: a.id,
-        filename: a.original_filename,
-        size: a.file_size
-      }))
+      submitted_at: incident.created_at
     };
   }
 
@@ -118,6 +106,21 @@ class ReportService {
     const total = await reportRepo.countAllWithFilters(filters);
     const rows = await reportRepo.findAllWithFilters(filters, limit, offset);
 
+    // Batch-fetch attachments for all returned incident IDs
+    const incidentIds = rows.map(r => r.id);
+    const attachmentsMap = {};
+    if (incidentIds.length > 0) {
+      const allAttachments = await reportRepo.getAttachmentsByIncidentIds(incidentIds);
+      for (const att of allAttachments) {
+        if (!attachmentsMap[att.incident_id]) attachmentsMap[att.incident_id] = [];
+        attachmentsMap[att.incident_id].push({
+          id: att.id,
+          filename: att.original_filename,
+          size: att.file_size
+        });
+      }
+    }
+
     const reports = rows.map(r => ({
       id: r.id,
       name: r.name,
@@ -128,7 +131,8 @@ class ReportService {
       incident_status: r.incident_status,
       description: r.description_of_incident,
       submitted_at: r.created_at,
-      updated_at: r.updated_at
+      updated_at: r.updated_at,
+      attachments: attachmentsMap[r.id] || []
     }));
 
     return { reports, total };

@@ -29,9 +29,9 @@ router.post(
 router.post('/status', requireCaptcha, checkStatusValidation, reportController.checkStatus);
 
 // POST (not GET) — body: { tracking_id, attachment_id } prevents URL exposure
-router.post('/attachments/download', downloadAttachmentValidation, reportController.downloadAttachmentPost);
-
+// Only authenticated users can download attachments
 // ===== ADMIN ROUTES (Authenticated) =====
+router.post('/admin/attachments/download', authMiddleware, downloadAttachmentValidation, reportController.downloadAttachmentPost);
 router.get('/admin', authMiddleware, listReportsValidation, reportController.listReports);
 router.patch('/admin/:id/incident-status', authMiddleware, updateIncidentStatusValidation, reportController.updateIncidentStatus);
 router.patch('/admin/:id/status', authMiddleware, updateStatusValidation, reportController.updateReportStatus);

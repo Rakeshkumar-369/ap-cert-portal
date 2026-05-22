@@ -168,7 +168,7 @@ const ReportModal = ({ isOpen, onClose }) => {
     setTrackingLoading(true);
     try {
       const res = await reportsAPI.checkStatus(trackInput.trim(), trackCaptcha.id, trackCaptchaText);
-      setTrackResult(res.data || res);
+      setTrackResult(res.data?.[0] || res);
     } catch (err) {
       // Show captcha 400 errors clearly
       const message = err.message || 'Tracking ID not found.';
@@ -332,16 +332,14 @@ const ReportModal = ({ isOpen, onClose }) => {
                       {trackResult.incident_status || 'Submitted'}
                     </span>
                   </div>
-                  {trackResult.description && (
-                    <div>
-                      <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest block mb-1">Description</span>
-                      <p className="text-sm text-gray-700">{trackResult.description}</p>
-                    </div>
-                  )}
-                  {trackResult.incident_status && (
-                    <div>
-                      <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest block mb-1">Incident Status</span>
-                      <p className="text-sm text-gray-700">{trackResult.incident_status}</p>
+                  {trackResult.submitted_at && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">
+                        Submitted at
+                      </span>
+                      <span className="text-sm text-gray-700 font-medium">
+                        {new Date(trackResult.submitted_at).toLocaleString()}
+                      </span>
                     </div>
                   )}
                 </div>

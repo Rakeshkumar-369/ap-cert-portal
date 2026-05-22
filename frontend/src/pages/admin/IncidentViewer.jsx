@@ -19,6 +19,61 @@ import { reportsAPI } from '../../services/api';
 
 const getToken = () => localStorage.getItem('token');
 
+// ───── StatusBadge Component ─────
+const StatusBadge = ({ status, type }) => {
+  let dotColor = 'bg-slate-400';
+  let bg = 'bg-slate-100 text-slate-600 border-slate-200';
+
+  if (type === 'incident') {
+    switch (status) {
+      case 'RESOLVED':
+        dotColor = 'bg-emerald-500';
+        bg = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        break;
+      case 'IN_REVIEW':
+        dotColor = 'bg-amber-400';
+        bg = 'bg-amber-50 text-amber-700 border-amber-200';
+        break;
+      case 'PENDING':
+        dotColor = 'bg-blue-500';
+        bg = 'bg-blue-50 text-blue-700 border-blue-200';
+        break;
+      case 'DISMISSED':
+        dotColor = 'bg-rose-500';
+        bg = 'bg-rose-50 text-rose-700 border-rose-200';
+        break;
+      default:
+        dotColor = 'bg-slate-400';
+        bg = 'bg-slate-100 text-slate-600 border-slate-200';
+    }
+  } else {
+    switch (status) {
+      case 'ACTIVE':
+        dotColor = 'bg-emerald-500';
+        bg = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        break;
+      case 'INACTIVE':
+        dotColor = 'bg-orange-400';
+        bg = 'bg-orange-50 text-orange-700 border-orange-200';
+        break;
+      case 'DELETED':
+        dotColor = 'bg-rose-500';
+        bg = 'bg-rose-50 text-rose-700 border-rose-200';
+        break;
+      default:
+        dotColor = 'bg-slate-400';
+        bg = 'bg-slate-100 text-slate-600 border-slate-200';
+    }
+  }
+
+  return (
+    <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full border ${bg}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+      {status || 'N/A'}
+    </span>
+  );
+};
+
 const INCIDENT_STATUS_OPTIONS = [
   { value: '', label: 'All Incident Status' },
   { value: 'PENDING', label: 'Pending' },
@@ -71,7 +126,7 @@ const IncidentViewer = () => {
   const [updatingReport, setUpdatingReport] = useState(false);
   const [downloadingFile, setDownloadingFile] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchTimeout, setSearchTimeout] = useState(null);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -80,6 +135,7 @@ const IncidentViewer = () => {
   const [filterReportStatus, setFilterReportStatus] = useState('');
 
   const searchRef = useRef(null);
+  const searchTimeoutRef = useRef(null);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -88,11 +144,11 @@ const IncidentViewer = () => {
 
   const buildParams = useCallback(() => {
     const params = {};
-    if (searchQuery.trim()) params.search = searchQuery.trim();
+    if (debouncedSearchQuery.trim()) params.search = debouncedSearchQuery.trim();
     if (filterIncidentStatus) params.incident_status = filterIncidentStatus;
     if (filterReportStatus) params.status = filterReportStatus;
     return params;
-  }, [searchQuery, filterIncidentStatus, filterReportStatus]);
+  }, [debouncedSearchQuery, filterIncidentStatus, filterReportStatus]);
 
   const fetchIncidents = useCallback(async () => {
     setLoading(true);
@@ -112,21 +168,21 @@ const IncidentViewer = () => {
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
-    if (searchTimeout) clearTimeout(searchTimeout);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     if (value.trim()) {
       setIsSearching(true);
     }
-    const timeout = setTimeout(() => {
-      fetchIncidents();
+    // Debounce updates the actual query param — triggers fetch through useEffect chain
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearchQuery(value);
     }, 400);
-    setSearchTimeout(timeout);
   };
 
   const clearSearch = () => {
     setSearchQuery('');
-    if (searchTimeout) clearTimeout(searchTimeout);
+    setDebouncedSearchQuery('');
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     setIsSearching(false);
-    fetchIncidents();
     searchRef.current?.focus();
   };
 
@@ -135,16 +191,16 @@ const IncidentViewer = () => {
     if (type === 'status') setFilterReportStatus(value);
   };
 
-  // Refetch when filters change
+  // Refetch when debounced search or filters change
   useEffect(() => {
     fetchIncidents();
   }, [fetchIncidents]);
 
   useEffect(() => {
     return () => {
-      if (searchTimeout) clearTimeout(searchTimeout);
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     };
-  }, [searchTimeout]);
+  }, []);
 
   const handleViewDetail = async (inc) => {
     const id = inc.id || inc._id;
@@ -154,18 +210,8 @@ const IncidentViewer = () => {
       return;
     }
     setSelectedIncident(id);
-    setIncidentDetail(null);
-    setDetailLoading(true);
-    try {
-      const res = await reportsAPI.checkStatus(inc.tracking_id);
-      const detail = res.data?.[0] || res;
-      setIncidentDetail(detail);
-    } catch (err) {
-      console.error('Failed to fetch incident details:', err);
-      setIncidentDetail(inc);
-    } finally {
-      setDetailLoading(false);
-    }
+    // Use data directly from list (includes attachments from batch query)
+    setIncidentDetail(inc);
   };
 
   const handleDownloadAttachment = async (attachmentId, filename) => {
@@ -174,7 +220,8 @@ const IncidentViewer = () => {
     try {
       const res = await reportsAPI.downloadAttachment(
         incidentDetail.tracking_id,
-        attachmentId
+        attachmentId,
+        getToken()
       );
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
@@ -225,62 +272,6 @@ const IncidentViewer = () => {
       setUpdatingReport(false);
       fetchIncidents();
     }
-  };
-
-  // ───── StatusBadge Component ─────
-
-  const StatusBadge = ({ status, type }) => {
-    let dotColor = 'bg-slate-400';
-    let bg = 'bg-slate-100 text-slate-600 border-slate-200';
-
-    if (type === 'incident') {
-      switch (status) {
-        case 'RESOLVED':
-          dotColor = 'bg-emerald-500';
-          bg = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-          break;
-        case 'IN_REVIEW':
-          dotColor = 'bg-amber-400';
-          bg = 'bg-amber-50 text-amber-700 border-amber-200';
-          break;
-        case 'PENDING':
-          dotColor = 'bg-blue-500';
-          bg = 'bg-blue-50 text-blue-700 border-blue-200';
-          break;
-        case 'DISMISSED':
-          dotColor = 'bg-rose-500';
-          bg = 'bg-rose-50 text-rose-700 border-rose-200';
-          break;
-        default:
-          dotColor = 'bg-slate-400';
-          bg = 'bg-slate-100 text-slate-600 border-slate-200';
-      }
-    } else {
-      switch (status) {
-        case 'ACTIVE':
-          dotColor = 'bg-emerald-500';
-          bg = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-          break;
-        case 'INACTIVE':
-          dotColor = 'bg-orange-400';
-          bg = 'bg-orange-50 text-orange-700 border-orange-200';
-          break;
-        case 'DELETED':
-          dotColor = 'bg-rose-500';
-          bg = 'bg-rose-50 text-rose-700 border-rose-200';
-          break;
-        default:
-          dotColor = 'bg-slate-400';
-          bg = 'bg-slate-100 text-slate-600 border-slate-200';
-      }
-    }
-
-    return (
-      <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full border ${bg}`}>
-        <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
-        {status || 'N/A'}
-      </span>
-    );
   };
 
   return (
@@ -434,55 +425,83 @@ const IncidentViewer = () => {
                     const id = inc.id || inc._id;
                     const isSelected = selectedIncident === id;
                     return (
-                      <motion.tr
-                        key={id}
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.025 }}
-                        className={`transition-all cursor-pointer ${
-                          idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/40'
-                        } ${
-                          isSelected
-                            ? 'bg-blue-50/70 hover:bg-blue-50'
-                            : 'hover:bg-blue-50/30'
-                        }`}
-                        onClick={() => handleViewDetail(inc)}
-                      >
-                        <td className="p-4">
-                          <div className="text-sm font-bold text-slate-800">{inc.tracking_id || `INC-${id}`}</div>
-                          <div className="text-[10px] text-slate-400 mt-0.5">{inc.name || inc.email || 'N/A'}</div>
-                        </td>
-                        <td className="p-4">
-                          <span className="inline-block text-xs text-slate-600 font-medium bg-slate-100 rounded-lg px-2.5 py-1">
-                            {inc.category_name || inc.category_id || 'General'}
-                          </span>
-                        </td>
-                        <td className="p-4 hidden md:table-cell">
-                          <StatusBadge status={inc.status} type="report" />
-                        </td>
-                        <td className="p-4 hidden md:table-cell">
-                          <StatusBadge status={inc.incident_status} type="incident" />
-                        </td>
-                        <td className="p-4">
-                          <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                            <Calendar size={12} className="text-slate-400" />
-                            {formatDate(inc.submitted_at || inc.created_at || inc.updated_at)}
-                          </div>
-                        </td>
-                        <td className="p-4 text-right">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleViewDetail(inc); }}
-                            className={`p-2 rounded-lg transition-all ${
-                              isSelected
-                                ? 'bg-white/90 text-ap-navy shadow-sm'
-                                : 'text-slate-400 hover:text-ap-navy hover:bg-white/80'
-                            }`}
-                            title="View details"
+                      <React.Fragment key={id}>
+                        <motion.tr
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.025 }}
+                          className={`transition-all cursor-pointer ${
+                            idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/40'
+                          } ${
+                            isSelected
+                              ? 'bg-blue-50/70 hover:bg-blue-50'
+                              : 'hover:bg-blue-50/30'
+                          }`}
+                          onClick={() => handleViewDetail(inc)}
+                        >
+                          <td className="p-4">
+                            <div className="text-sm font-bold text-slate-800">{inc.tracking_id || `INC-${id}`}</div>
+                            <div className="text-[10px] text-slate-400 mt-0.5">{inc.name || inc.email || 'N/A'}</div>
+                          </td>
+                          <td className="p-4">
+                            <span className="inline-block text-xs text-slate-600 font-medium bg-slate-100 rounded-lg px-2.5 py-1">
+                              {inc.category || 'General'}
+                            </span>
+                          </td>
+                          <td className="p-4 hidden md:table-cell">
+                            <StatusBadge status={inc.status} type="report" />
+                          </td>
+                          <td className="p-4 hidden md:table-cell">
+                            <StatusBadge status={inc.incident_status} type="incident" />
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                              <Calendar size={12} className="text-slate-400" />
+                              {formatDate(inc.submitted_at || inc.created_at || inc.updated_at)}
+                            </div>
+                          </td>
+                          <td className="p-4 text-right">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleViewDetail(inc); }}
+                              className={`p-2 rounded-lg transition-all ${
+                                isSelected
+                                  ? 'bg-white/90 text-ap-navy shadow-sm'
+                                  : 'text-slate-400 hover:text-ap-navy hover:bg-white/80'
+                              }`}
+                              title="View details"
+                            >
+                              <Eye size={16} />
+                            </button>
+                          </td>
+                        </motion.tr>
+                        {isSelected && (
+                          <motion.tr
+                            key={`${id}-detail`}
+                            initial={{ opacity: 0, y: -4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -4 }}
                           >
-                            <Eye size={16} />
-                          </button>
-                        </td>
-                      </motion.tr>
+                            <td colSpan={6} className="p-0">
+                              <DetailPanelContent
+                                inc={inc}
+                                detail={incidentDetail}
+                                detailLoading={detailLoading}
+                                onClose={() => { setSelectedIncident(null); setIncidentDetail(null); }}
+                                onDownloadAttachment={handleDownloadAttachment}
+                                downloadingFile={downloadingFile}
+                                onUpdateStatus={handleUpdateStatus}
+                                statusUpdate={statusUpdate}
+                                setStatusUpdate={setStatusUpdate}
+                                updating={updating}
+                                onUpdateReportStatus={handleUpdateReportStatus}
+                                reportStatusUpdate={reportStatusUpdate}
+                                setReportStatusUpdate={setReportStatusUpdate}
+                                updatingReport={updatingReport}
+                              />
+                            </td>
+                          </motion.tr>
+                        )}
+                      </React.Fragment>
                     );
                   })}
                 </AnimatePresence>
@@ -492,215 +511,211 @@ const IncidentViewer = () => {
         </div>
       </Card>
 
-      {/* Detail Panel */}
-      <AnimatePresence>
-        {selectedIncident && (() => {
-          const inc = incidents.find(i => (i.id || i._id) === selectedIncident);
-          if (!inc) return null;
-          const detail = incidentDetail;
-          const attachments = detail?.attachments || [];
+      {/* Detail Panel — rendered inline below the clicked row */}
+    </div>
+  );
+};
 
-          const formatSize = (bytes) => {
-            if (!bytes) return '';
-            if (bytes < 1024) return `${bytes} B`;
-            if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-            return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-          };
+// ─── Detail Panel Inline Component ───
+const DetailPanelContent = ({
+  inc, detail, detailLoading, onClose,
+  onDownloadAttachment, downloadingFile,
+  onUpdateStatus, statusUpdate, setStatusUpdate, updating,
+  onUpdateReportStatus, reportStatusUpdate, setReportStatusUpdate, updatingReport
+}) => {
+  const attachments = detail?.attachments || [];
 
-          return (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-            >
-              <Card className="mt-6 border-ap-glow/30 shadow-md">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gradient-to-br from-ap-navy to-[#1a3a6b] rounded-xl text-white shadow-sm">
-                      <FileText size={16} />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-black uppercase tracking-tight text-slate-800">
-                        {inc.tracking_id || `INC-${inc.id}`}
-                      </h3>
-                      <p className="text-[9px] text-slate-400 uppercase tracking-wider mt-0.5">Incident Details</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="hidden sm:flex items-center gap-2">
-                      <StatusBadge status={inc.incident_status} type="incident" />
-                      <StatusBadge status={inc.status} type="report" />
+  const formatSize = (bytes) => {
+    if (!bytes) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  return (
+    <div className="p-5 bg-gradient-to-b from-white to-slate-50/50 border-b-2 border-ap-glow/20">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-br from-ap-navy to-[#1a3a6b] rounded-xl text-white shadow-sm">
+            <FileText size={16} />
+          </div>
+          <div>
+            <h3 className="text-sm font-black uppercase tracking-tight text-slate-800">
+              {inc.tracking_id || `INC-${inc.id}`}
+            </h3>
+            <p className="text-[9px] text-slate-400 uppercase tracking-wider mt-0.5">Incident Details</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2">
+            <StatusBadge status={inc.incident_status} type="incident" />
+            <StatusBadge status={inc.status} type="report" />
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      </div>
+
+      {detailLoading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 size={24} className="animate-spin text-ap-navy" />
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading details...</span>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {/* Info Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+              <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1.5">Name</p>
+              <p className="text-sm font-bold text-slate-800">{inc.name || 'N/A'}</p>
+            </div>
+            <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+              <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1.5">Email</p>
+              <p className="text-sm font-bold text-slate-800 break-all">{inc.email || 'N/A'}</p>
+            </div>
+            <div className="md:col-span-2 bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+              <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1.5">Description</p>
+              <p className="text-sm text-slate-600 leading-relaxed">{inc.description || detail?.description || 'N/A'}</p>
+            </div>
+            {inc.submitted_at && (
+              <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+                <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1.5 flex items-center gap-1.5">
+                  <Calendar size={10} /> Submitted
+                </p>
+                <p className="text-sm font-bold text-slate-800">
+                  {new Date(inc.submitted_at).toLocaleString('en-IN', {
+                    day: '2-digit', month: 'short', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit',
+                  })}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Attachments */}
+          <div>
+            <h4 className="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-3 flex items-center gap-2">
+              <FileText size={14} /> Attachments ({attachments.length})
+            </h4>
+            {attachments.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {attachments.map((att) => (
+                  <div
+                    key={att.id}
+                    className="flex items-center justify-between bg-white rounded-xl px-4 py-3 border border-slate-200 hover:border-ap-glow/30 hover:shadow-sm transition-all"
+                  >
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="p-1.5 bg-ap-navy/5 rounded-lg shrink-0">
+                        <FileText size={14} className="text-ap-navy" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm text-slate-700 truncate font-medium">
+                          {att.filename || att.original_filename}
+                        </p>
+                        {att.size && (
+                          <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                            {formatSize(att.size)}
+                          </p>
+                        )}
+                      </div>
                     </div>
                     <button
-                      onClick={() => { setSelectedIncident(null); setIncidentDetail(null); }}
-                      className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                      onClick={() =>
+                        onDownloadAttachment(
+                          att.id,
+                          att.filename || att.original_filename || `attachment-${att.id}`
+                        )
+                      }
+                      disabled={downloadingFile === att.id}
+                      className="ml-3 bg-ap-navy text-white px-3 py-1.5 rounded-lg text-[10px] font-bold hover:bg-ap-navy/90 transition-all disabled:opacity-50 flex items-center gap-1.5 shrink-0 shadow-sm"
                     >
-                      <X size={16} />
+                      {downloadingFile === att.id ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : (
+                        <Download size={12} />
+                      )}
+                      Download
                     </button>
                   </div>
-                </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-400 italic bg-white rounded-xl px-4 py-3 border border-slate-200">
+                No attachments for this report.
+              </p>
+            )}
+          </div>
 
-                {detailLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="flex flex-col items-center gap-3">
-                      <Loader2 size={24} className="animate-spin text-ap-navy" />
-                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading details...</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {/* Info Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="bg-gradient-to-br from-slate-50 to-white rounded-xl p-4 border border-slate-200">
-                        <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1.5">Name</p>
-                        <p className="text-sm font-bold text-slate-800">{inc.name || 'N/A'}</p>
-                      </div>
-                      <div className="bg-gradient-to-br from-slate-50 to-white rounded-xl p-4 border border-slate-200">
-                        <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1.5">Email</p>
-                        <p className="text-sm font-bold text-slate-800 break-all">{inc.email || 'N/A'}</p>
-                      </div>
-                      <div className="md:col-span-2 bg-gradient-to-br from-slate-50 to-white rounded-xl p-4 border border-slate-200">
-                        <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1.5">Description</p>
-                        <p className="text-sm text-slate-600 leading-relaxed">{inc.description || detail?.description || 'N/A'}</p>
-                      </div>
-                      {inc.submitted_at && (
-                        <div className="bg-gradient-to-br from-slate-50 to-white rounded-xl p-4 border border-slate-200">
-                          <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1.5 flex items-center gap-1.5">
-                            <Calendar size={10} /> Submitted
-                          </p>
-                          <p className="text-sm font-bold text-slate-800">
-                            {new Date(inc.submitted_at).toLocaleString('en-IN', {
-                              day: '2-digit', month: 'short', year: 'numeric',
-                              hour: '2-digit', minute: '2-digit',
-                            })}
-                          </p>
-                        </div>
-                      )}
-                    </div>
+          {/* Status Controls */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+            {/* Incident Status Update */}
+            <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-4 border border-blue-100">
+              <label className="text-[10px] font-black uppercase text-blue-700 tracking-widest block mb-3 flex items-center gap-2">
+                <ChevronDown size={12} />
+                Incident Status
+                <StatusBadge status={inc.incident_status} type="incident" />
+              </label>
+              <div className="flex gap-2">
+                <select
+                  value={statusUpdate}
+                  onChange={(e) => setStatusUpdate(e.target.value)}
+                  className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/30 transition-all cursor-pointer"
+                >
+                  <option value="">Change status...</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="IN_REVIEW">Under Review</option>
+                  <option value="RESOLVED">Resolved</option>
+                  <option value="DISMISSED">Dismissed</option>
+                </select>
+                <button
+                  onClick={() => onUpdateStatus(inc.id || inc._id)}
+                  disabled={updating || !statusUpdate}
+                  className="bg-blue-600 text-white px-4 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-blue-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-sm"
+                >
+                  {updating ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+                  Update
+                </button>
+              </div>
+            </div>
 
-                    {/* Attachments */}
-                    <div>
-                      <h4 className="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-3 flex items-center gap-2">
-                        <FileText size={14} /> Attachments ({attachments.length})
-                      </h4>
-                      {attachments.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {attachments.map((att) => (
-                            <div
-                              key={att.id}
-                              className="flex items-center justify-between bg-white rounded-xl px-4 py-3 border border-slate-200 hover:border-ap-glow/30 hover:shadow-sm transition-all"
-                            >
-                              <div className="flex items-center gap-3 min-w-0 flex-1">
-                                <div className="p-1.5 bg-ap-navy/5 rounded-lg shrink-0">
-                                  <FileText size={14} className="text-ap-navy" />
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="text-sm text-slate-700 truncate font-medium">
-                                    {att.filename || att.original_filename}
-                                  </p>
-                                  {att.size && (
-                                    <p className="text-[10px] text-slate-400 font-mono mt-0.5">
-                                      {formatSize(att.size)}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                              <button
-                                onClick={() =>
-                                  handleDownloadAttachment(
-                                    att.id,
-                                    att.filename || att.original_filename || `attachment-${att.id}`
-                                  )
-                                }
-                                disabled={downloadingFile === att.id}
-                                className="ml-3 bg-ap-navy text-white px-3 py-1.5 rounded-lg text-[10px] font-bold hover:bg-ap-navy/90 transition-all disabled:opacity-50 flex items-center gap-1.5 shrink-0 shadow-sm"
-                              >
-                                {downloadingFile === att.id ? (
-                                  <Loader2 size={12} className="animate-spin" />
-                                ) : (
-                                  <Download size={12} />
-                                )}
-                                Download
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-slate-400 italic bg-white rounded-xl px-4 py-3 border border-slate-200">
-                          No attachments for this report.
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Status Controls */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
-                      {/* Incident Status Update */}
-                      <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-4 border border-blue-100">
-                        <label className="text-[10px] font-black uppercase text-blue-700 tracking-widest block mb-3 flex items-center gap-2">
-                          <ChevronDown size={12} />
-                          Incident Status
-                          <StatusBadge status={inc.incident_status} type="incident" />
-                        </label>
-                        <div className="flex gap-2">
-                          <select
-                            value={statusUpdate}
-                            onChange={(e) => setStatusUpdate(e.target.value)}
-                            className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/30 transition-all cursor-pointer"
-                          >
-                            <option value="">Change status...</option>
-                            <option value="PENDING">Pending</option>
-                            <option value="IN_REVIEW">Under Review</option>
-                            <option value="RESOLVED">Resolved</option>
-                            <option value="DISMISSED">Dismissed</option>
-                          </select>
-                          <button
-                            onClick={() => handleUpdateStatus(inc.id || inc._id)}
-                            disabled={updating || !statusUpdate}
-                            className="bg-blue-600 text-white px-4 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-blue-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-sm"
-                          >
-                            {updating ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
-                            Update
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Report Status Update */}
-                      <div className="bg-gradient-to-br from-slate-50 to-white rounded-xl p-4 border border-slate-200">
-                        <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest block mb-3 flex items-center gap-2">
-                          <ChevronDown size={12} />
-                          Report Status
-                          <StatusBadge status={inc.status} type="report" />
-                        </label>
-                        <div className="flex gap-2">
-                          <select
-                            value={reportStatusUpdate}
-                            onChange={(e) => setReportStatusUpdate(e.target.value)}
-                            className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 transition-all cursor-pointer"
-                          >
-                            <option value="">Change status...</option>
-                            <option value="ACTIVE">Active</option>
-                            <option value="INACTIVE">Inactive</option>
-                            <option value="DELETED">Deleted</option>
-                          </select>
-                          <button
-                            onClick={() => handleUpdateReportStatus(inc.id || inc._id)}
-                            disabled={updatingReport || !reportStatusUpdate}
-                            className="bg-slate-600 text-white px-4 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-slate-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-sm"
-                          >
-                            {updatingReport ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
-                            Update
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </Card>
-            </motion.div>
-          );
-        })()}
-      </AnimatePresence>
+            {/* Report Status Update */}
+            <div className="bg-gradient-to-br from-slate-50 to-white rounded-xl p-4 border border-slate-200">
+              <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest block mb-3 flex items-center gap-2">
+                <ChevronDown size={12} />
+                Report Status
+                <StatusBadge status={inc.status} type="report" />
+              </label>
+              <div className="flex gap-2">
+                <select
+                  value={reportStatusUpdate}
+                  onChange={(e) => setReportStatusUpdate(e.target.value)}
+                  className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400/30 transition-all cursor-pointer"
+                >
+                  <option value="">Change status...</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="INACTIVE">Inactive</option>
+                  <option value="DELETED">Deleted</option>
+                </select>
+                <button
+                  onClick={() => onUpdateReportStatus(inc.id || inc._id)}
+                  disabled={updatingReport || !reportStatusUpdate}
+                  className="bg-slate-600 text-white px-4 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-slate-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-sm"
+                >
+                  {updatingReport ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+                  Update
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

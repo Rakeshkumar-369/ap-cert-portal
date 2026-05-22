@@ -61,6 +61,17 @@ class ReportRepository {
     return rows;
   }
 
+  async getAttachmentsByIncidentIds(ids) {
+    if (!ids || ids.length === 0) return [];
+    const placeholders = ids.map(() => '?').join(',');
+    const [rows] = await pool.query(
+      `SELECT id, incident_id, original_filename, file_size
+       FROM reported_incident_attachments WHERE incident_id IN (${placeholders})`,
+      ids
+    );
+    return rows;
+  }
+
   async getAttachmentById(id) {
     const [rows] = await pool.query(
       `SELECT * FROM reported_incident_attachments WHERE id = ?`,
